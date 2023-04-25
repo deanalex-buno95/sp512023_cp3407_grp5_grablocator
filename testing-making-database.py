@@ -1,22 +1,24 @@
 import sqlite3
+from login import Login
 
-# Connect to the database
 conn = sqlite3.connect('login.db')
 
-# Create a cursor object
+
 cursor = conn.cursor()
 
-# Create a table
-cursor.execute('''CREATE TABLE login_detail
-             (identity text, password text)''')
+# cursor.execute('''CREATE TABLE login
+#              (identity integer ,
+#              password text)
+#              ''')
+#
+# cursor.execute("INSERT INTO login VALUES (98708072002,'testing1')")
+# cursor.execute("INSERT INTO login VALUES (98704101997,'testing2')")
+# cursor.execute("INSERT INTO login VALUES (98701012001,'testing3')")
 
-# Insert data into the table
-cursor.execute("INSERT INTO login_detail VALUES ('98708072002','testing1')")
-cursor.execute("INSERT INTO login_detail VALUES ('98704101997','testing2')")
-cursor.execute("INSERT INTO login_detail VALUES ('98701012001','testing3')")
+cursor.execute("SELECT * FROM login WHERE identity='98704101097'")
 
-# Commit the changes
+print(cursor.fetchone())
+
 conn.commit()
 
-# Close the connection
 conn.close()
