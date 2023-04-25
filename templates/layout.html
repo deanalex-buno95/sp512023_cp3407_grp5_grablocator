@@ -7,7 +7,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>{% block title %}{% endblock %}</title>
+        <title>{% block titleblock %}{% endblock %}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" >
@@ -28,7 +28,7 @@
             </div>
         </main>
         <footer>
-            {% block footer %}
+            {% block footerblock %}
             {% endblock %}
         </footer>
         <script src="" async defer></script>
