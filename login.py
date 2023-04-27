@@ -10,3 +10,9 @@ class Login:
         self.id = id
         self.password = password
 
+    def email (self):
+        return '{}.{}@gmail.com'.format(self.firstname, self.lastname)
+
+    def fullname(self):
+        return '{} {}'.format(self.firstname, self.lastname)
+
