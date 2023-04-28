@@ -55,6 +55,6 @@ class LoginForm(FlaskForm):
     # All inputs in a login form.
     driver_email = EmailField('Email',
                               validators=[validators.InputRequired()])
-    driver_password = PasswordField('New Password',
+    driver_password = PasswordField('Password',
                                     validators=[validators.InputRequired()])
     form_submit = SubmitField('Login')
