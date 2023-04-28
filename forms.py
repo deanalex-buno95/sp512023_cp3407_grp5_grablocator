@@ -7,7 +7,7 @@ forms.py
 
 from datetime import date, timedelta
 from flask_wtf import FlaskForm
-from wtforms import StringField, DateField, EmailField, PasswordField, validators
+from wtforms import StringField, DateField, EmailField, PasswordField, SubmitField, validators
 
 
 class RegisterForm(FlaskForm):
@@ -35,6 +35,7 @@ class RegisterForm(FlaskForm):
                                                     validators.Length(min=8)])
     driver_confirm_password = PasswordField('Confirm Password',
                                             validators=[validators.EqualTo('driver_new_password')])
+    form_submit = SubmitField('Register')
 
     # Validators
     def validate_dob(self, driver_dob_field):  # Check age is between 21 to 69.
@@ -56,3 +57,4 @@ class LoginForm(FlaskForm):
                               validators=[validators.InputRequired()])
     driver_password = PasswordField('New Password',
                                     validators=[validators.InputRequired()])
+    form_submit = SubmitField('Login')
