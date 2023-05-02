@@ -76,8 +76,9 @@ class LoginForm(FlaskForm):
     Flask Form to log an existing driver in.
     """
     # All inputs in a login form.
-    driver_email = EmailField('Email',
-                              validators=[validators.InputRequired()])
+    driver_id = StringField('ID',
+                            validators=[validators.InputRequired(),
+                                        validators.Length(min=9, max=9)])
     driver_password = PasswordField('Password',
                                     validators=[validators.InputRequired()])
     form_submit = SubmitField('Login')
