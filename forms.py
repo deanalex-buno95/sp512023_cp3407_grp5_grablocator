@@ -9,6 +9,8 @@ from datetime import date, timedelta
 from flask_wtf import FlaskForm
 from wtforms import StringField, DateField, IntegerField, EmailField, PasswordField, SubmitField, validators
 
+import sqlite3
+
 
 class RegisterForm(FlaskForm):
     """
@@ -61,6 +63,15 @@ class RegisterForm(FlaskForm):
     form_submit = SubmitField('Register')
 
     # Validators
+    def validate_driver_id(self, driver_id_field):  # Check that the driver has not existed.
+        with sqlite3.connect("grab_locator.db") as db:
+            cursor = db.cursor()
+            cursor.execute("""
+                           SELECT * FROM DRIVER WHERE driver_id=?
+                           """, (driver_id_field.data,))
+            if cursor.fetchone():
+                raise validators.ValidationError("You have already registered!")
+
     def validate_dob(self, driver_dob_field):  # Check age is between 21 to 69.
         age = (date.today() - driver_dob_field.data) // timedelta(days=365.2425)
         if age < 21 or age > 69:
@@ -82,3 +93,18 @@ class LoginForm(FlaskForm):
     driver_password = PasswordField('Password',
                                     validators=[validators.InputRequired()])
     form_submit = SubmitField('Login')
+
+    # Validators
+    def validate_driver_id_and_password(self,
+                                        driver_id_field, driver_password_field):  # Check right driver and password.
+        with sqlite3.connect("grab_locator.db") as db:
+            cursor = db.cursor()
+            cursor.execute("""
+                           SELECT driver_id, driver_password FROM DRIVER WHERE driver_id=?
+                           """, (driver_id_field.data,))
+            result = cursor.fetchone()
+            if not result:  # No results.
+                raise validators.ValidationError("You have not registered!")
+            elif result[1] != driver_password_field.data:  # Incorrect password.
+                raise validators.ValidationError("The password is incorrect!")
+            db.close()
