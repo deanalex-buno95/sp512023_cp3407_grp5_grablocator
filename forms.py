@@ -93,3 +93,18 @@ class LoginForm(FlaskForm):
     driver_password = PasswordField('Password',
                                     validators=[validators.InputRequired()])
     form_submit = SubmitField('Login')
+
+    # Validators
+    def validate_driver_id_and_password(self,
+                                        driver_id_field, driver_password_field):  # Check right driver and password.
+        with sqlite3.connect("grab_locator.db") as db:
+            cursor = db.cursor()
+            cursor.execute("""
+                           SELECT driver_id, driver_password FROM DRIVER WHERE driver_id=?
+                           """, (driver_id_field.data,))
+            result = cursor.fetchone()
+            if not result:  # No results.
+                raise validators.ValidationError("You have not registered!")
+            elif result[1] != driver_password_field.data:  # Incorrect password.
+                raise validators.ValidationError("The password is incorrect!")
+            db.close()
