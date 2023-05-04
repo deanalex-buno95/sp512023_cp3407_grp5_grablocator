@@ -73,6 +73,21 @@ def add_new_driver(driver_id, driver_name,
     db.commit()
 
 
+def add_new_driveraddress(driveraddress_driver_id, driveraddress_address_id):
+    """
+    Add an instance of the composite element containing the IDs of the Driver and Address.
+    :param driveraddress_driver_id: str
+    :param driveraddress_address_id: str
+    """
+    driveraddress_row = (driveraddress_driver_id, driveraddress_address_id)
+    driveraddress_query = """
+                          INSERT INTO DRIVERADDRESS (driveraddress_driver_id, driveraddress_address_id)
+                          VALUES (?, ?)
+                          """
+    cursor.execute(driveraddress_query, driveraddress_row)
+    db.commit()
+
+
 """
 All Routes
 """
@@ -81,6 +96,9 @@ All Routes
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if form.validate_on_submit():
+        driver_id = form.driver_id.data.upper()
+        driver_password = form.driver_password.data
     return render_template("login.html", form=form)
 
 
@@ -88,17 +106,17 @@ def login():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        driver_id = form.driver_id.data
-        driver_name = form.driver_name.data
+        driver_id = form.driver_id.data.upper()
+        driver_name = form.driver_name.data.upper()
         driver_dob = form.driver_dob.data
         driver_hire_date = form.driver_hire_date.data
         driver_address_block_number = form.driver_address_block_number.data
         driver_address_unit_floor_number = form.driver_address_unit_floor_number.data
         driver_address_unit_apartment_number = form.driver_address_unit_apartment_number.data
-        driver_address_street = form.driver_address_street
+        driver_address_street = form.driver_address_street.upper()
         driver_address_postal_code = form.driver_address_postal_code.data
-        driver_plate_number = form.driver_plate_number.data
-        driver_email = form.driver_email.data
+        driver_plate_number = form.driver_plate_number.data.upper()
+        driver_email = form.driver_email.data.lower()
         driver_password = form.driver_confirm_password.data
     return render_template("register.html", form=form)
 
