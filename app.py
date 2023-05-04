@@ -4,7 +4,7 @@ Flask App file
 app.py
 """
 
-from flask import Flask, redirect, render_template, session
+from flask import Flask, redirect, render_template, session, url_for
 import sqlite3
 
 from forms import RegisterForm, LoginForm
@@ -99,6 +99,9 @@ def login():
     if form.validate_on_submit():
         driver_id = form.driver_id.data.upper()
         driver_password = form.driver_password.data
+        session['logged_in'] = True
+        session['driver_id'] = driver_id
+        return redirect(url_for('index'))
     return render_template("login.html", form=form)
 
 
@@ -118,12 +121,25 @@ def register():
         driver_plate_number = form.driver_plate_number.data.upper()
         driver_email = form.driver_email.data.lower()
         driver_password = form.driver_confirm_password.data
+        session['logged_in'] = True
+        session['driver_id'] = driver_id
+        return redirect(url_for('index'))
     return render_template("register.html", form=form)
 
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    if 'logged_in' in session:
+        return render_template("index.html")
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/logout')
+def logout():
+    session.pop('driver_id', None)
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
 
 
 app.run(debug=True)

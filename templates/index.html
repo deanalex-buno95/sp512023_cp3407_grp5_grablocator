@@ -4,6 +4,10 @@
     GrabLocator | Welcome
 {% endblock %}
 
+{% block logoutblockheader %}
+    <a href="{{ url_for('logout') }}">LOGOUT</a>
+{% endblock %}
+
 {% block contentblock %}
     <h1>
         Welcome to GrabLocator
@@ -16,4 +20,8 @@
 
         </div>
     </div>
+{% endblock %}
+
+{% block logoutblockfooter %}
+    <a href="{{ url_for('logout') }}">LOGOUT</a>
 {% endblock %}
