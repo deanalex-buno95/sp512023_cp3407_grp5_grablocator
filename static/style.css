@@ -1,14 +1,6 @@
 /*
 HTML
  */
-header,footer {
-    background-color: #0A9830;
-    padding-bottom: 10px;
-    color: white;
-}
-
-
-
 
 /*
 Header
@@ -19,6 +11,11 @@ Header
 /*
 Footer
  */
+header,footer {
+    background-color: #0A9830;
+    padding-bottom: 10px;
+    color: white;
+}
 
 
 
