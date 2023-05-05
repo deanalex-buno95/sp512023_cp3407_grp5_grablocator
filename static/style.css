@@ -1,10 +1,13 @@
 /*
 HTML
  */
-header {
-    background-color: blue;
+header,footer {
+    background-color: #0A9830;
+    padding-bottom: 10px;
     color: white;
 }
+
+
 
 
 /*
