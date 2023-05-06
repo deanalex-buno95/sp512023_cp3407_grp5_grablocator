@@ -17,6 +17,10 @@ header,footer {
     color: white;
 }
 
+.collapse{
+    background-color: #0A9830;
+    color: white;
+}
 
 
 /*
@@ -45,4 +49,5 @@ Content
 .form-control-lg {
   height: 50px;
 }
+
 
