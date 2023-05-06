@@ -22,4 +22,27 @@ header,footer {
 /*
 Content
  */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-control-label {
+  font-weight: bold;
+}
+
+.form-control {
+  border-radius: 0;
+  border: 2px solid #ccc;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: none;
+}
+
+.form-control-lg {
+  height: 50px;
+}
 
