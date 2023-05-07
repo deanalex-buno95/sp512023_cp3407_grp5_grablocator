@@ -23,14 +23,15 @@ header,footer {
 }
 
 
+
 /*
 Content
  */
 
 .row{
-        background-color: #0A9830;
-        padding: 20px;
-        margin: 20px;
+    background-color: #0A9830;
+    padding: 20px;
+    margin: 20px;
     color: white;
 
 }
