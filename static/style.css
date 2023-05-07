@@ -64,3 +64,17 @@ Content
     color: #0A9830;
 }
 
+.form-submit-button {
+  background-color: #2ecc71;
+  color: white;
+  border-radius: 5px;
+  padding: 10px 20px;
+  border: none;
+  font-size: 16px;
+}
+
+.form-submit-button:hover {
+  background-color: #27ae60;
+  cursor: pointer;
+}
+
