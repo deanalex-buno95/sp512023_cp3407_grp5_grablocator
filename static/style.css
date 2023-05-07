@@ -22,8 +22,6 @@ header,footer {
     color: white;
 }
 
-
-
 /*
 Content
  */
@@ -60,6 +58,7 @@ Content
 }
 
 .name{
+    font-family: SansSerif, sans-serif;
     margin: 10px;
     font-size: 75px;
     color: #0A9830;
