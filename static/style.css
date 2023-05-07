@@ -26,6 +26,14 @@ header,footer {
 /*
 Content
  */
+
+.row{
+        background-color: #0A9830;
+        padding: 20px;
+        margin: 20px;
+    color: white;
+
+}
 .form-group {
   margin-bottom: 20px;
 }
