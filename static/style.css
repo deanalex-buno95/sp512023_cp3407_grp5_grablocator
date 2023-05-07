@@ -31,7 +31,7 @@ Content
 .row{
     background-color: #0A9830;
     padding: 20px;
-    margin: 20px;
+    margin-bottom: 20px;
     color: white;
 
 }
@@ -59,4 +59,9 @@ Content
   height: 50px;
 }
 
+.name{
+    margin: 10px;
+    font-size: 75px;
+    color: #0A9830;
+}
 
