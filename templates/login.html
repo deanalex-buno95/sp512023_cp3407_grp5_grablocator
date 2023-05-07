@@ -19,6 +19,7 @@
                 {{ form.driver_password.label(class="form-control-label") }}
                 {{ form.driver_password(class="form-control form-control-lg") }}
             </div>
+            <p>        Have yet to register? Click <a href="{{ url_for('login') }}">here</a> to register now!</p>
 
             {% if form.errors %}
                 <ul class="errors">
@@ -33,7 +34,7 @@
             {{ form.form_submit() }}
         </form>
     </div>
-    <div class="row">
-    <p>        Have yet to register? Click <a href="{{ url_for('login') }}">here</a> to register now!</p>
-    </div>
+{#    <div class="row">#}
+{#    <p>        Have yet to register? Click <a href="{{ url_for('login') }}">here</a> to register now!</p>#}
+{#    </div>#}
 {% endblock %}
