@@ -15,6 +15,18 @@ header, footer {
     padding: 15px 10px;
 }
 
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
 .navbar-nav.me-auto.mb-2.mb-lg-0 .nav-item .nav-link {
     color: #043e13;
 }
@@ -35,46 +47,50 @@ General Content
     color: #0A9830;
 }
 
+.container {
+    padding-top: 155px;
+}
+
 
 /*
 Content
  */
 
 .form-group {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .form-control-label {
-  font-weight: bold;
+    font-weight: bold;
 }
 
 .form-control {
-  border-radius: 0;
-  border: 2px solid #ccc;
-  padding: 10px;
-  font-size: 16px;
+    border-radius: 0;
+    border: 2px solid #ccc;
+    padding: 10px;
+    font-size: 16px;
 }
 
 .form-control:focus {
-  border-color: #007bff;
-  box-shadow: none;
+    border-color: #007bff;
+    box-shadow: none;
 }
 
 .form-control-lg {
-  height: 50px;
+    height: 50px;
 }
 
 .form-submit-button {
-  background-color: #2ecc71;
-  color: white;
-  border-radius: 5px;
-  padding: 10px 20px;
-  border: none;
-  font-size: 16px;
+    background-color: #2ecc71;
+    color: white;
+    border-radius: 5px;
+    padding: 10px 20px;
+    border: none;
+    font-size: 16px;
 }
 
 .form-submit-button:hover {
-  background-color: #27ae60;
-  cursor: pointer;
+    background-color: #27ae60;
+    cursor: pointer;
 }
 
