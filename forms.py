@@ -62,7 +62,20 @@ class RegisterForm(FlaskForm):
     # # Submit
     form_submit = SubmitField('Register')
 
+    # To uppercase
+    def to_uppercase(self, field):
+        field.data = field.data.upper()
+
     # Validators
+    def validate(self, extra_validators=None):
+        if not super().validate():
+            return False
+        self.to_uppercase(self.driver_id)
+        self.to_uppercase(self.driver_name)
+        self.to_uppercase(self.driver_address_street)
+        self.to_uppercase(self.driver_plate_number)
+        return True
+
     def validate_driver_id(self, driver_id_field):  # Check that the driver has not existed.
         with sqlite3.connect("grab_locator.db") as db:
             cursor = db.cursor()
@@ -94,7 +107,17 @@ class LoginForm(FlaskForm):
                                     validators=[validators.InputRequired()])
     form_submit = SubmitField('Login')
 
+    # To uppercase
+    def to_uppercase(self, field):
+        field.data = field.data.upper()
+
     # Validators
+    def validate(self, extra_validators=None):
+        if not super().validate():
+            return False
+        self.to_uppercase(self.driver_id)
+        return True
+
     def validate_driver_id_and_password(self,
                                         driver_id_field, driver_password_field):  # Check right driver and password.
         with sqlite3.connect("grab_locator.db") as db:
