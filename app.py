@@ -12,80 +12,37 @@ from forms import RegisterForm, LoginForm
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "c2e3QoE'Ug)C--xJ(SHu?+R+9bd^ap"
 
-db = sqlite3.connect("grab_locator.db")
-cursor = db.cursor()
-
 """
 All Functions
 """
 
 
-def add_new_address(address_block_number,
-                    address_unit_floor_number,
-                    address_unit_apartment_number,
-                    address_street,
-                    driver_address_postal_code):
+def create_address_id(address_postal_code, address_unit_floor_number=None, address_unit_apartment_number=None):
     """
-    Add a new address.
-    :param address_block_number: int
+    Create the address ID.
+    :param address_postal_code: int
     :param address_unit_floor_number: int
     :param address_unit_apartment_number: int
-    :param address_street: str
-    :param driver_address_postal_code: str
+    :return: str
     """
-    address_id = str(driver_address_postal_code)
+    address_id = str(address_postal_code)
     if address_unit_floor_number is not None and address_unit_apartment_number is not None:
-        address_id += f"|{address_unit_floor_number}-{address_unit_apartment_number}"
-    address_row = (address_id, address_block_number, address_unit_floor_number, address_unit_apartment_number,
-                   address_street, driver_address_postal_code)
-    address_query = """
-                    INSERT INTO ADDRESS (address_id, address_block_number,
-                    address_unit_floor_number, address_unit_apartment_number,
-                    address_street, address_postal_code)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    """
-    cursor.execute(address_query, address_row)
-    db.commit()
+        address_id += f"|{address_unit_floor_number:02d}-{address_unit_apartment_number}"
+    return address_id
 
 
-def add_new_driver(driver_id, driver_name,
-                   driver_dob, driver_hire_date,
-                   driver_plate_number, driver_email, driver_password):
+def add_data_query(query, data_row):
     """
-    Register a new driver, along with its addresses.
-    :param driver_id: str
-    :param driver_name: str
-    :param driver_dob: date
-    :param driver_hire_date: date
-    :param driver_plate_number: str
-    :param driver_email: str
-    :param driver_password: str
+    Add data.
+    :param query: str
+    :param data_row:
+    :return:
     """
-    driver_row = (driver_id, driver_name, driver_dob, driver_hire_date, driver_plate_number, driver_email,
-                  driver_password)
-    driver_query = """
-                   INSERT INTO DRIVER (driver_id, driver_name,
-                   driver_dob, driver_hire_date,
-                   driver_plate_number, driver_email, driver_password)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)
-                   """
-    cursor.execute(driver_query, driver_row)
-    db.commit()
-
-
-def add_new_driveraddress(driveraddress_driver_id, driveraddress_address_id):
-    """
-    Add an instance of the composite element containing the IDs of the Driver and Address.
-    :param driveraddress_driver_id: str
-    :param driveraddress_address_id: str
-    """
-    driveraddress_row = (driveraddress_driver_id, driveraddress_address_id)
-    driveraddress_query = """
-                          INSERT INTO DRIVERADDRESS (driveraddress_driver_id, driveraddress_address_id)
-                          VALUES (?, ?)
-                          """
-    cursor.execute(driveraddress_query, driveraddress_row)
-    db.commit()
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    cursor.execute(query, data_row)
+    connection.commit()
+    connection.close()
 
 
 """
@@ -97,7 +54,7 @@ All Routes
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        driver_id = form.driver_id.data.upper()
+        driver_id = form.driver_id.data
         driver_password = form.driver_password.data
         session['logged_in'] = True
         session['driver_id'] = driver_id
@@ -109,6 +66,7 @@ def login():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
+        # Fields data.
         driver_id = form.driver_id.data
         driver_name = form.driver_name.data
         driver_dob = form.driver_dob.data
@@ -116,14 +74,56 @@ def register():
         driver_address_block_number = form.driver_address_block_number.data
         driver_address_unit_floor_number = form.driver_address_unit_floor_number.data
         driver_address_unit_apartment_number = form.driver_address_unit_apartment_number.data
-        driver_address_street = form.driver_address_street
+        driver_address_street = form.driver_address_street.data
         driver_address_postal_code = form.driver_address_postal_code.data
         driver_plate_number = form.driver_plate_number.data
         driver_email = form.driver_email.data.lower()
         driver_password = form.driver_confirm_password.data
-        session['logged_in'] = True
-        session['driver_id'] = driver_id
-        return redirect(url_for('index'))
+
+        # Data rows.
+        address_id = create_address_id(driver_address_postal_code, driver_address_unit_floor_number,
+                                       driver_address_unit_apartment_number)
+        address_row = (address_id, driver_address_block_number, driver_address_unit_floor_number,
+                       driver_address_unit_apartment_number, driver_address_street, driver_address_postal_code)
+
+        driver_row = (driver_id, driver_name, driver_dob, driver_hire_date, driver_plate_number, driver_email,
+                      driver_password)
+
+        driveraddress_row = (driver_id, address_id)
+
+        # Queries.
+        address_query = """
+                        INSERT INTO ADDRESS (address_id, address_block_number, address_unit_floor_number,
+                        address_unit_apartment_number, address_street, address_postal_code)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """
+
+        driver_query = """
+                       INSERT INTO DRIVER (driver_id, driver_name, driver_dob, driver_hire_date, driver_plate_number,
+                       driver_email, driver_password)
+                       VALUES (?, ?, ?, ?, ?, ?, ?)
+                       """
+
+        driveraddress_query = """
+                              INSERT INTO DRIVERADDRESS (driveraddress_driver_id, driveraddress_address_id)
+                              VALUES (?, ?)
+                              """
+
+        # Apply queries on data.
+        all_queries_fulfilled = True
+        for query, data_row in [(address_query, address_row), (driver_query, driver_row),
+                                (driveraddress_query, driveraddress_row)]:
+            try:
+                add_data_query(query, data_row)
+            except Exception as e:
+                print(f"An error occurred for {(query, data_row)}: {e}")
+                all_queries_fulfilled = False
+
+        # Sessions.
+        if all_queries_fulfilled:
+            session['logged_in'] = True
+            session['driver_id'] = driver_id
+            return redirect(url_for('index'))
     return render_template("register.html", form=form)
 
 
@@ -144,4 +144,3 @@ def logout():
 
 
 app.run(debug=True)
-db.close()
