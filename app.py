@@ -45,6 +45,24 @@ def add_data_query(query, data_row):
     connection.close()
 
 
+def get_correct_password(driver_id):
+    """
+    Get correct password from the driver ID.
+    :param driver_id: str
+    :return: str
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    query = """
+            SELECT driver_password FROM DRIVER
+            WHERE driver_id = ?
+            """
+    data_row = (driver_id,)
+    cursor.execute(query, data_row)
+    password_tuple = cursor.fetchone()
+    return password_tuple[0]
+
+
 """
 All Routes
 """
@@ -54,11 +72,20 @@ All Routes
 def login():
     form = LoginForm()
     if form.validate_on_submit():
+        # Fields data.
         driver_id = form.driver_id.data
         driver_password = form.driver_password.data
-        session['logged_in'] = True
-        session['driver_id'] = driver_id
-        return redirect(url_for('index'))
+
+        # Get correct password, or lack thereof.
+        driver_correct_password = get_correct_password(driver_id)
+
+        # If password is correct.
+        if driver_password == driver_correct_password:
+            session['logged_in'] = True
+            session['driver_id'] = driver_id
+            return redirect(url_for('index'))
+        else:
+            print("Password incorrect!")
     return render_template("login.html", form=form)
 
 
