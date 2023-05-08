@@ -109,16 +109,16 @@ def login():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        driver_id = form.driver_id.data.upper()
-        driver_name = form.driver_name.data.upper()
+        driver_id = form.driver_id.data
+        driver_name = form.driver_name.data
         driver_dob = form.driver_dob.data
         driver_hire_date = form.driver_hire_date.data
         driver_address_block_number = form.driver_address_block_number.data
         driver_address_unit_floor_number = form.driver_address_unit_floor_number.data
         driver_address_unit_apartment_number = form.driver_address_unit_apartment_number.data
-        driver_address_street = form.driver_address_street.upper()
+        driver_address_street = form.driver_address_street
         driver_address_postal_code = form.driver_address_postal_code.data
-        driver_plate_number = form.driver_plate_number.data.upper()
+        driver_plate_number = form.driver_plate_number.data
         driver_email = form.driver_email.data.lower()
         driver_password = form.driver_confirm_password.data
         session['logged_in'] = True
@@ -130,7 +130,8 @@ def register():
 @app.route('/')
 def index():
     if 'logged_in' in session:
-        return render_template("index.html")
+        driver_id = session['driver_id']
+        return render_template("index.html", driver_id=driver_id)
     else:
         return redirect(url_for('login'))
 
