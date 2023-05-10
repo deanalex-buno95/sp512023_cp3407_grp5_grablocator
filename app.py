@@ -184,6 +184,38 @@ def index():
         return redirect(url_for('login'))
 
 
+@app.route('/orders')
+def orders():
+    if 'logged_in' in session:
+        return render_template("orders.html")
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/history')
+def history():
+    if 'logged_in' in session:
+        return render_template("history.html")
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/about')
+def about():
+    if 'logged_in' in session:
+        return render_template("about.html")
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/contact')
+def contact():
+    if 'logged_in' in session:
+        return render_template("contact.html")
+    else:
+        return redirect(url_for('login'))
+
+
 @app.route('/logout')
 def logout():
     session.pop('driver_id', None)
