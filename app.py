@@ -59,8 +59,28 @@ def get_correct_password(driver_id):
             """
     data_row = (driver_id,)
     cursor.execute(query, data_row)
-    password_tuple = cursor.fetchone()
-    return password_tuple[0]
+    driver_password_tuple = cursor.fetchone()
+    connection.close()
+    return driver_password_tuple[0]
+
+
+def get_driver_name_from_driver_id(driver_id):
+    """
+    Get driver's name of the person based on his/her driver ID.
+    :param driver_id: str
+    :return: str
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    query = """
+            SELECT driver_name FROM DRIVER
+            WHERE driver_id = ?
+            """
+    data_row = (driver_id,)
+    cursor.execute(query, data_row)
+    driver_name_tuple = cursor.fetchone()
+    connection.close()
+    return driver_name_tuple[0]
 
 
 """
@@ -158,7 +178,8 @@ def register():
 def index():
     if 'logged_in' in session:
         driver_id = session['driver_id']
-        return render_template("index.html", driver_id=driver_id)
+        driver_name = get_driver_name_from_driver_id(driver_id).title()
+        return render_template("index.html", driver_name=driver_name)
     else:
         return redirect(url_for('login'))
 
