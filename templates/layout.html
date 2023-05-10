@@ -36,19 +36,19 @@
                                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">Main Menu</a>
+                                            <a class="nav-link" href="{{ url_for('index') }}">Main Menu</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">Orders</a>
+                                            <a class="nav-link" href="{{ url_for('orders') }}">Orders</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">History</a>
+                                            <a class="nav-link" href="{{ url_for('history') }}">History</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">About</a>
+                                            <a class="nav-link" href="{{ url_for('about') }}">About</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">Contact</a>
+                                            <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
                                         </li>
                                     </ul>
                                     {% block logoutblockheader %}
@@ -78,19 +78,19 @@
                                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">Main Menu</a>
+                                            <a class="nav-link" href="{{ url_for('index') }}">Main Menu</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">Orders</a>
+                                            <a class="nav-link" href="{{ url_for('orders') }}">Orders</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">History</a>
+                                            <a class="nav-link" href="{{ url_for('history') }}">History</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">About</a>
+                                            <a class="nav-link" href="{{ url_for('about') }}">About</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">Contact</a>
+                                            <a class="nav-link" href="{{ url_for('contact') }}">Contact</a>
                                         </li>
                                     </ul>
                                     {% block logoutblockfooter %}
@@ -107,8 +107,7 @@
                 </div>
                 <div class="col">
                     <div class="d-flex justify-content-end">
-                        &copy;<span id="copyrightCurrentYear"></span>&nbsp;
-                        <p>GrabLocator </p>
+                        &copy;<span id="copyrightCurrentYear"></span>&nbsp;GrabLocator
                     </div>
                 </div>
             </div>
