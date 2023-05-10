@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    GrabLocator | Orders
+{% endblock %}
+
+{% block logoutblockheader %}
+    <a href="{{ url_for('logout') }}">LOGOUT</a>
+{% endblock %}
+
+{% block contentblock %}
+    <h1 class="page-title">
+        Your Orders
+    </h1>
+
+{% endblock %}
+
+{% block logoutblockfooter %}
+    <a href="{{ url_for('logout') }}">LOGOUT</a>
+{% endblock %}
