@@ -7,7 +7,7 @@ forms.py
 
 from datetime import date, timedelta
 from flask_wtf import FlaskForm
-from wtforms import StringField, DateField, IntegerField, EmailField, PasswordField, SubmitField, validators
+from wtforms import StringField, DateField, EmailField, PasswordField, SubmitField, validators
 
 import sqlite3
 
@@ -38,11 +38,15 @@ class RegisterForm(FlaskForm):
                                  validators=[validators.InputRequired()])
 
     # # Address
-    driver_address_block_number = IntegerField('Block/House Number', validators=[validators.InputRequired()])
-    driver_address_unit_floor_number = IntegerField('Unit Floor', validators=[validators.Optional(), validators.NumberRange(min=1, max=50)])
-    driver_address_unit_apartment_number = IntegerField('Apartment Number', validators=[validators.Optional()])
+    driver_address_block_number = StringField('Block/House Number', validators=[validators.InputRequired(),
+                                                                                validators.Regexp('^[0-9a-zA-Z]*$',
+                                                                                                  message='Field must contain only letters and numbers')])
+    driver_address_unit_number = StringField('Unit Number', validators=[validators.Optional()])
     driver_address_street = StringField('Street', validators=[validators.InputRequired()])
-    driver_address_postal_code = IntegerField('Postal Code', validators=[validators.InputRequired(), validators.NumberRange(min=100000, max=999999)])
+    driver_address_postal_code = StringField('Postal Code', validators=[validators.InputRequired(),
+                                                                        validators.Length(min=6, max=6),
+                                                                        validators.Regexp('^[0-9]*$',
+                                                                                          message='Field must contain only numbers')])
 
     # # Plate Number
     driver_plate_number = StringField('Plate Number',
@@ -72,6 +76,7 @@ class RegisterForm(FlaskForm):
             return False
         self.to_uppercase(self.driver_id)
         self.to_uppercase(self.driver_name)
+        self.to_uppercase(self.driver_address_block_number)
         self.to_uppercase(self.driver_address_street)
         self.to_uppercase(self.driver_plate_number)
         return True
