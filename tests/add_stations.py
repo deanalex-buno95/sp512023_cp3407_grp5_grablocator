@@ -37,13 +37,13 @@ if __name__ == '__main__':
 
                 # Get the station data.
                 station_id = row[0]
-                station_name = row[1]
-                station_address_block_number = row[2]
-                station_address_street = row[3]
+                station_name = row[1].upper()
+                station_address_block_number = row[2].upper()
+                station_address_street = row[3].upper()
                 station_address_postal_code = row[4][1:]
 
                 # Proceed to write the necessary data for the queries.
-                station_address = (station_id, int(station_address_block_number), station_address_street,
+                station_address = (station_id, station_address_block_number, station_address_street,
                                    station_address_postal_code)
                 station_destination = (station_id, station_name)
                 station_pickupdest = (station_id, True)
