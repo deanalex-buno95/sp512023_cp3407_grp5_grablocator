@@ -95,3 +95,19 @@ Content
     cursor: pointer;
 }
 
+.buttons{
+    display: flex;
+    justify-content: center;
+    width: 300px;
+    height: 150px;
+    background-color: blue;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.buttons span{
+    text-align: center;
+    color: blueviolet;
+}
+
