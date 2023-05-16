@@ -109,6 +109,11 @@ Content
   border: none;
   cursor: pointer;
   overflow: hidden;
+  margin: auto; /* Center horizontally */
+    top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .buttons img {
