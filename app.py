@@ -65,7 +65,7 @@ def get_correct_password(driver_id):
 
 def get_driver_name_from_driver_id(driver_id):
     """
-    Get driver's name of the person based on his/her driver ID.
+    Get driver's nam based on his/her driver ID.
     :param driver_id: str
     :return: str
     """
@@ -74,6 +74,27 @@ def get_driver_name_from_driver_id(driver_id):
     query = """
             SELECT driver_name FROM DRIVER
             WHERE driver_id = ?
+            """
+    data_row = (driver_id,)
+    cursor.execute(query, data_row)
+    driver_name_tuple = cursor.fetchone()
+    connection.close()
+    return driver_name_tuple[0]
+
+
+def get_driver_postal_code_from_driver_id(driver_id):
+    """
+    Get driver's postal code based on his/her driver ID.
+    :param driver_id: str
+    :return: str
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    query = """
+            SELECT address_postal_code FROM ADDRESS, DRIVERADDRESS, DRIVER
+            WHERE DRIVER.driver_id = DRIVERADDRESS.driveraddress_driver_id
+            AND DRIVERADDRESS.driveraddress_address_id = ADDRESS.address_id
+            AND DRIVER.driver_id = ?
             """
     data_row = (driver_id,)
     cursor.execute(query, data_row)
@@ -184,6 +205,9 @@ def index():
 @app.route('/orders')
 def orders():
     if 'logged_in' in session:
+        driver_id = session['driver_id']
+        driver_postal_code = get_driver_postal_code_from_driver_id(driver_id)
+        print(driver_postal_code)
         return render_template("orders.html")
     else:
         return redirect(url_for('login'))
