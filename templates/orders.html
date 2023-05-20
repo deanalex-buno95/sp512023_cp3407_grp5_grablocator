@@ -38,6 +38,51 @@
     <h1 class="page-title">
         Your Orders
     </h1>
+    <ul style="list-style-type:none;" class="graborder-list">
+        {% for available_order in available_orders %}
+            <li>
+                <button type="button" class="graborder-order">
+                    {{ available_order[0] }}
+                    <div class="row">
+                        <div class="col">
+                            From
+                            <ul>
+                                <li>
+                                    Block Number: {{ available_order[1] }}
+                                </li>
+                                <li>
+                                    Unit Number: {{ available_order[2] }}
+                                </li>
+                                <li>
+                                    Street: {{ available_order[3] }}
+                                </li>
+                                <li>
+                                    Postal Code: {{ available_order[4] }}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col">
+                            To
+                            <ul>
+                                <li>
+                                    Block Number: {{ available_order[5] }}
+                                </li>
+                                <li>
+                                    Unit Number: {{ available_order[6] }}
+                                </li>
+                                <li>
+                                    Street: {{ available_order[7] }}
+                                </li>
+                                <li>
+                                    Postal Code: {{ available_order[8] }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
 
 {% endblock %}
 

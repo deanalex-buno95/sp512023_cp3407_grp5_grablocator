@@ -281,7 +281,7 @@ def orders():
         driver_nearest_station_code = get_nearest_station_code_from_postal_sector(driver_postal_sector)
         available_orders = get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_code)
         print(available_orders)
-        return render_template("orders.html")
+        return render_template("orders.html", available_orders=available_orders)
     else:
         return redirect(url_for('login'))
 
