@@ -103,6 +103,44 @@ def get_driver_postal_code_from_driver_id(driver_id):
     return driver_name_tuple[0]
 
 
+def get_nearest_station_from_postal_sector(postal_sector):
+    """
+    Get the nearest station from the postal sector
+    :param postal_sector: str
+    :return: str
+    """
+    station_to_postal_sectors_dictionary = {"ST01": ("01", "02", "03", "04", "05", "06"),
+                                            "ST02": ("07", "08"),
+                                            "ST03": ("14", "15", "16"),
+                                            "ST04": ("09", "10"),
+                                            "ST05": ("11", "12", "13"),
+                                            "ST06": ("17",),
+                                            "ST07": ("18", "19"),
+                                            "ST08": ("20", "21"),
+                                            "ST09": ("22", "23"),
+                                            "ST10": ("24", "25", "26", "27"),
+                                            "ST11": ("28", "29", "30"),
+                                            "ST12": ("31", "32", "33"),
+                                            "ST13": ("34", "35", "36", "37"),
+                                            "ST14": ("38", "39", "40", "41"),
+                                            "ST15": ("42", "43", "44", "45"),
+                                            "ST16": ("46", "47", "48"),
+                                            "ST17": ("49", "50", "81"),
+                                            "ST18": ("51", "52"),
+                                            "ST19": ("53", "54", "55", "82"),
+                                            "ST20": ("56", "57"),
+                                            "ST21": ("58", "59"),
+                                            "ST22": ("60", "61", "62", "63", "64"),
+                                            "ST23": ("65", "66", "67", "68"),
+                                            "ST24": ("69", "70", "71", "72", "73"),
+                                            "ST25": ("77", "78"),
+                                            "ST26": ("75", "76"),
+                                            "ST27": ("79", "80")}
+    for station in station_to_postal_sectors_dictionary:
+        if postal_sector in station_to_postal_sectors_dictionary[station]:
+            return station
+
+
 """
 All Routes
 """
@@ -207,7 +245,9 @@ def orders():
     if 'logged_in' in session:
         driver_id = session['driver_id']
         driver_postal_code = get_driver_postal_code_from_driver_id(driver_id)
-        print(driver_postal_code)
+        driver_postal_sector = driver_postal_code[:2]
+        driver_nearest_station = get_nearest_station_from_postal_sector(driver_postal_sector)
+        print(driver_nearest_station)
         return render_template("orders.html")
     else:
         return redirect(url_for('login'))
