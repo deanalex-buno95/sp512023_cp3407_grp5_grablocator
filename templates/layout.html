@@ -60,7 +60,11 @@
                 </div>
             </div>
         </footer>
-        <script src="" async defer></script>
+        <script>
+            function redirectTo(route) {
+                window.location.href = route;
+            }
+        </script>
         <script>
             const copyrightCurrentYear = new Date().getFullYear();
             const copyrightCurrentYearElement = document.getElementById("copyrightCurrentYear");
