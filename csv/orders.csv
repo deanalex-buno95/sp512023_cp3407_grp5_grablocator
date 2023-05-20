@@ -1,5 +1,5 @@
 OrderID,PickupDestName,PickupDestBlockNumber,PickupDestUnitNumber,PickupDestStreet,PickupDestPostalCode,FinalDestName,FinalDestBlockNumber,FinalDestUnitNumber,FinalDestStreet,FinalDestPostalCode,Date
 GF100,McDonalds Northpoint,930,01-12,Yishun Avenue 2,S769098,,739,02-246,Yishun Avenue 5,S760739,2023-06-14
-GX2500,,210,06-454,Yishun Street 21,S760210,,2A,05-02,Derbyshire Road,S309470,2023-06-15
+GX2500,,210,10-39,Yishun Street 21,S760210,,2A,05-02,Derbyshire Road,S309470,2023-06-15
 GM62500,FairPrice Hougang Mall,90,B1-07,Hougang Avenue 10,S538766,,144,04-535,Rivervale Drive,S540144,2023-06-16
 GF1562500,The Soup Spoon Union Toa Payoh,480,01-17,Lor 6 Toa Payoh,S310480,James Cook University,149,,Sims Drive,S387380,2023-06-17
