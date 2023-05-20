@@ -103,9 +103,9 @@ def get_driver_postal_code_from_driver_id(driver_id):
     return driver_name_tuple[0]
 
 
-def get_nearest_station_from_postal_sector(postal_sector):
+def get_nearest_station_code_from_postal_sector(postal_sector):
     """
-    Get the nearest station from the postal sector
+    Get the nearest station code from the postal sector.
     :param postal_sector: str
     :return: str
     """
@@ -139,6 +139,38 @@ def get_nearest_station_from_postal_sector(postal_sector):
     for station in station_to_postal_sectors_dictionary:
         if postal_sector in station_to_postal_sectors_dictionary[station]:
             return station
+
+
+def get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_code):
+    """
+    Get available orders of the driver.
+    :param driver_postal_sector: str
+    :param driver_nearest_station_code: str
+    :return: list
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    available_orders_query = """
+                             SELECT graborder_id, PickupDestAddress.address_block_number,
+                             PickupDestAddress.address_unit_number, PickupDestAddress.address_street,
+                             PickupDestAddress.address_postal_code, FinalDestAddress.address_block_number,
+                             FinalDestAddress.address_unit_number, FinalDestAddress.address_street,
+                             FinalDestAddress.address_postal_code
+                             FROM GRABORDER, PICKUPDEST, FINALDEST, DESTINATION PickupD, DESTINATION FinalD,
+                             ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
+                             WHERE GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
+                             AND GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
+                             AND PICKUPDEST.pickupdest_id = PickupD.dest_address_id
+                             AND FINALDEST.finaldest_id = FinalD.dest_address_id
+                             AND PickupD.dest_address_id = PickupDestAddress.address_id
+                             AND FinalD.dest_address_id = FinalDestAddress.address_id
+                             AND (PickupDestAddress.address_postal_code LIKE ? OR PickupDestAddress.address_id = ?)
+                             """
+    available_orders_data = (f"{driver_postal_sector}%", driver_nearest_station_code)
+    cursor.execute(available_orders_query, available_orders_data)
+    available_orders = cursor.fetchall()
+    connection.close()
+    return available_orders
 
 
 """
@@ -246,8 +278,9 @@ def orders():
         driver_id = session['driver_id']
         driver_postal_code = get_driver_postal_code_from_driver_id(driver_id)
         driver_postal_sector = driver_postal_code[:2]
-        driver_nearest_station = get_nearest_station_from_postal_sector(driver_postal_sector)
-        print(driver_nearest_station)
+        driver_nearest_station_code = get_nearest_station_code_from_postal_sector(driver_postal_sector)
+        available_orders = get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_code)
+        print(available_orders)
         return render_template("orders.html")
     else:
         return redirect(url_for('login'))
