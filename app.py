@@ -252,6 +252,43 @@ def get_full_address(block_number, unit_number, street, postal_code):
     return f"Block {block_number}{f', #{unit_number}' if unit_number else ''}, {street.title()}, Singapore {postal_code}"
 
 
+def get_order_from_station_is_intersectional(station_id, final_destination_postal_code):
+    """
+    Check if the order that starts from a station is intersectional.
+    :param station_id: str
+    :param final_destination_postal_code: str
+    :return: bool
+    """
+    station_to_postal_sectors_dictionary = {"ST01": ("01", "02", "03", "04", "05", "06"),
+                                            "ST02": ("07", "08"),
+                                            "ST03": ("14", "15", "16"),
+                                            "ST04": ("09", "10"),
+                                            "ST05": ("11", "12", "13"),
+                                            "ST06": ("17",),
+                                            "ST07": ("18", "19"),
+                                            "ST08": ("20", "21"),
+                                            "ST09": ("22", "23"),
+                                            "ST10": ("24", "25", "26", "27"),
+                                            "ST11": ("28", "29", "30"),
+                                            "ST12": ("31", "32", "33"),
+                                            "ST13": ("34", "35", "36", "37"),
+                                            "ST14": ("38", "39", "40", "41"),
+                                            "ST15": ("42", "43", "44", "45"),
+                                            "ST16": ("46", "47", "48"),
+                                            "ST17": ("49", "50", "81"),
+                                            "ST18": ("51", "52"),
+                                            "ST19": ("53", "54", "55", "82"),
+                                            "ST20": ("56", "57"),
+                                            "ST21": ("58", "59"),
+                                            "ST22": ("60", "61", "62", "63", "64"),
+                                            "ST23": ("65", "66", "67", "68"),
+                                            "ST24": ("69", "70", "71", "72", "73"),
+                                            "ST25": ("77", "78"),
+                                            "ST26": ("75", "76"),
+                                            "ST27": ("79", "80")}
+    return True if final_destination_postal_code[:2] not in station_to_postal_sectors_dictionary[station_id] else False
+
+
 """
 All Routes
 """
@@ -402,10 +439,14 @@ def selectedorder(order_id):
         final_destination_address = get_full_address(final_destination_block_number, final_destination_unit_number,
                                                      final_destination_street, final_destination_postal_code)
 
-        # Check if the order starts from a station.
+        # Check if the order is intra- or inter-sectional.
         pickup_destination_id = current_order[0]
-        is_station = (pickup_destination_id[:2] == "ST")
-        print(pickup_destination_id, is_station)
+        if pickup_destination_id[:2] == "ST":  # Is a station.
+            order_is_intersectional = get_order_from_station_is_intersectional(pickup_destination_id, final_destination_postal_code)
+        else:  # Is not a station.
+            order_is_intersectional = (pickup_destination_postal_code[:2] != final_destination_postal_code[:2])  # Check that the postal sectors are different.
+
+        print(order_is_intersectional)
 
         return render_template("selectedorder.html", order_id=order_id)
     else:
