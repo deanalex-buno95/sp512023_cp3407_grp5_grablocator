@@ -275,6 +275,7 @@ def login():
             return redirect(url_for('index'))
         else:
             print("Password incorrect!")
+
     return render_template("login.html", form=form)
 
 
@@ -338,15 +339,21 @@ def register():
             session['logged_in'] = True
             session['driver_id'] = driver_id
             return redirect(url_for('index'))
+
     return render_template("register.html", form=form)
 
 
 @app.route('/')
 def index():
     if 'logged_in' in session:
+        # Take driver ID.
         driver_id = session['driver_id']
+
+        # Get driver name.
         driver_name = get_driver_name_from_driver_id(driver_id).title()
+
         return render_template("index.html", driver_name=driver_name)
+
     else:
         return redirect(url_for('login'))
 
@@ -354,12 +361,16 @@ def index():
 @app.route('/orders')
 def orders():
     if 'logged_in' in session:
+        # Take driver ID.
         driver_id = session['driver_id']
+
+        # Get all needed information.
         driver_postal_code = get_driver_postal_code_from_driver_id(driver_id)
         driver_postal_sector = driver_postal_code[:2]
         driver_nearest_station_code = get_nearest_station_code_from_postal_sector(driver_postal_sector)
         available_orders = get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_code)
         pending_orders = get_pending_orders_of_driver(driver_id)
+
         return render_template("orders.html", available_orders=available_orders, pending_orders=pending_orders)
     else:
         return redirect(url_for('login'))
@@ -368,10 +379,14 @@ def orders():
 @app.route('/selectedorder/<string:order_id>')
 def selectedorder(order_id):
     if 'logged_in' in session:
+        # Take driver ID.
         driver_id = session['driver_id']
+
+        # Get current order and its status.
         current_order = get_current_order(order_id)
         is_pending = bool(current_order[-1])
 
+        # Get the pickup location.
         start_location_block_number = current_order[1]
         start_location_unit_number = current_order[2]
         start_location_street = current_order[3]
@@ -379,6 +394,7 @@ def selectedorder(order_id):
         start_location_address = get_full_address(start_location_block_number, start_location_unit_number,
                                                   start_location_street, start_location_postal_code)
 
+        # Get the final location.
         end_location_block_number = current_order[6]
         end_location_unit_number = current_order[7]
         end_location_street = current_order[8]
