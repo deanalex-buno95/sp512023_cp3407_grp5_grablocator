@@ -289,6 +289,30 @@ def get_order_from_station_is_intersectional(station_id, final_destination_posta
     return True if final_destination_postal_code[:2] not in station_to_postal_sectors_dictionary[station_id] else False
 
 
+def get_age_and_experience_of_driver(driver_id):
+    """
+    Get the age and experience of the driver.
+    :param driver_id: str
+    :return: tuple
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    driver_age_and_experience_query = """
+                                      SELECT
+                                      strftime('%Y', 'now') - strftime('%Y', driver_dob) -
+                                      (strftime('%m-%d', 'now') < strftime('%m-%d', driver_dob)),
+                                      strftime('%Y', 'now') - strftime('%Y', driver_hire_date) -
+                                      (strftime('%m-%d', 'now') < strftime('%m-%d', driver_hire_date))
+                                      FROM DRIVER
+                                      WHERE driver_id = ?
+                                      """
+    driver_age_and_experience_data = (driver_id,)
+    cursor.execute(driver_age_and_experience_query, driver_age_and_experience_data)
+    driver_age_and_experience = cursor.fetchone()
+    connection.close()
+    return driver_age_and_experience
+
+
 """
 All Routes
 """
@@ -446,7 +470,9 @@ def selectedorder(order_id):
         else:  # Is not a station.
             order_is_intersectional = (pickup_destination_postal_code[:2] != final_destination_postal_code[:2])  # Check that the postal sectors are different.
 
-        print(order_is_intersectional)
+        # Age and experience.
+        age, experience = get_age_and_experience_of_driver(driver_id)
+        print(age, experience)
 
         return render_template("selectedorder.html", order_id=order_id)
     else:
