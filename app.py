@@ -65,7 +65,7 @@ def get_correct_password(driver_id):
 
 def get_driver_name_from_driver_id(driver_id):
     """
-    Get driver's name of the person based on his/her driver ID.
+    Get driver's nam based on his/her driver ID.
     :param driver_id: str
     :return: str
     """
@@ -80,6 +80,127 @@ def get_driver_name_from_driver_id(driver_id):
     driver_name_tuple = cursor.fetchone()
     connection.close()
     return driver_name_tuple[0]
+
+
+def get_driver_postal_code_from_driver_id(driver_id):
+    """
+    Get driver's postal code based on his/her driver ID.
+    :param driver_id: str
+    :return: str
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    query = """
+            SELECT address_postal_code FROM ADDRESS, DRIVERADDRESS, DRIVER
+            WHERE DRIVER.driver_id = DRIVERADDRESS.driveraddress_driver_id
+            AND DRIVERADDRESS.driveraddress_address_id = ADDRESS.address_id
+            AND DRIVER.driver_id = ?
+            """
+    data_row = (driver_id,)
+    cursor.execute(query, data_row)
+    driver_name_tuple = cursor.fetchone()
+    connection.close()
+    return driver_name_tuple[0]
+
+
+def get_nearest_station_code_from_postal_sector(postal_sector):
+    """
+    Get the nearest station code from the postal sector.
+    :param postal_sector: str
+    :return: str
+    """
+    station_to_postal_sectors_dictionary = {"ST01": ("01", "02", "03", "04", "05", "06"),
+                                            "ST02": ("07", "08"),
+                                            "ST03": ("14", "15", "16"),
+                                            "ST04": ("09", "10"),
+                                            "ST05": ("11", "12", "13"),
+                                            "ST06": ("17",),
+                                            "ST07": ("18", "19"),
+                                            "ST08": ("20", "21"),
+                                            "ST09": ("22", "23"),
+                                            "ST10": ("24", "25", "26", "27"),
+                                            "ST11": ("28", "29", "30"),
+                                            "ST12": ("31", "32", "33"),
+                                            "ST13": ("34", "35", "36", "37"),
+                                            "ST14": ("38", "39", "40", "41"),
+                                            "ST15": ("42", "43", "44", "45"),
+                                            "ST16": ("46", "47", "48"),
+                                            "ST17": ("49", "50", "81"),
+                                            "ST18": ("51", "52"),
+                                            "ST19": ("53", "54", "55", "82"),
+                                            "ST20": ("56", "57"),
+                                            "ST21": ("58", "59"),
+                                            "ST22": ("60", "61", "62", "63", "64"),
+                                            "ST23": ("65", "66", "67", "68"),
+                                            "ST24": ("69", "70", "71", "72", "73"),
+                                            "ST25": ("77", "78"),
+                                            "ST26": ("75", "76"),
+                                            "ST27": ("79", "80")}
+    for station in station_to_postal_sectors_dictionary:
+        if postal_sector in station_to_postal_sectors_dictionary[station]:
+            return station
+
+
+def get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_code):
+    """
+    Get available orders of the driver.
+    :param driver_postal_sector: str
+    :param driver_nearest_station_code: str
+    :return: list
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    available_orders_query = """
+                             SELECT graborder_id, PickupDestAddress.address_block_number,
+                             PickupDestAddress.address_unit_number, PickupDestAddress.address_street,
+                             PickupDestAddress.address_postal_code, FinalDestAddress.address_block_number,
+                             FinalDestAddress.address_unit_number, FinalDestAddress.address_street,
+                             FinalDestAddress.address_postal_code
+                             FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
+                             JOIN PICKUPDEST ON GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
+                             JOIN FINALDEST ON GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
+                             JOIN DESTINATION PickupD ON PICKUPDEST.pickupdest_id = PickupD.dest_address_id
+                             JOIN DESTINATION FinalD ON FINALDEST.finaldest_id = FinalD.dest_address_id
+                             WHERE graborder_driver_id IS NULL
+                             AND PickupD.dest_address_id = PickupDestAddress.address_id
+                             AND FinalD.dest_address_id = FinalDestAddress.address_id
+                             AND (PickupDestAddress.address_postal_code LIKE ? OR PickupDestAddress.address_id = ?)
+                             """
+    available_orders_data = (f"{driver_postal_sector}%", driver_nearest_station_code)
+    cursor.execute(available_orders_query, available_orders_data)
+    available_orders = cursor.fetchall()
+    connection.close()
+    return available_orders
+
+
+def get_pending_orders_of_driver(driver_id):
+    """
+    Get pending orders of the driver.
+    :param driver_id:
+    :return:
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    pending_orders_query = """
+                           SELECT graborder_id, PickupDestAddress.address_block_number,
+                           PickupDestAddress.address_unit_number, PickupDestAddress.address_street,
+                           PickupDestAddress.address_postal_code, FinalDestAddress.address_block_number,
+                           FinalDestAddress.address_unit_number, FinalDestAddress.address_street,
+                           FinalDestAddress.address_postal_code
+                           FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
+                           JOIN PICKUPDEST ON GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
+                           JOIN FINALDEST ON GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
+                           JOIN DESTINATION PickupD ON PICKUPDEST.pickupdest_id = PickupD.dest_address_id
+                           JOIN DESTINATION FinalD ON FINALDEST.finaldest_id = FinalD.dest_address_id
+                           WHERE PickupD.dest_address_id = PickupDestAddress.address_id
+                           AND FinalD.dest_address_id = FinalDestAddress.address_id
+                           AND graborder_driver_id = ?
+                           """
+    pending_orders_data = (driver_id,)
+    cursor.execute(pending_orders_query, pending_orders_data)
+    pending_orders = cursor.fetchall()
+    connection.close()
+    return pending_orders
 
 
 """
@@ -184,7 +305,21 @@ def index():
 @app.route('/orders')
 def orders():
     if 'logged_in' in session:
-        return render_template("orders.html")
+        driver_id = session['driver_id']
+        driver_postal_code = get_driver_postal_code_from_driver_id(driver_id)
+        driver_postal_sector = driver_postal_code[:2]
+        driver_nearest_station_code = get_nearest_station_code_from_postal_sector(driver_postal_sector)
+        available_orders = get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_code)
+        pending_orders = get_pending_orders_of_driver(driver_id)
+        return render_template("orders.html", available_orders=available_orders, pending_orders=pending_orders)
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/selectedorder/<string:order_id>')
+def selectedorder(order_id):
+    if 'logged_in' in session:
+        return render_template("selectedorder.html", order_id=order_id)
     else:
         return redirect(url_for('login'))
 
