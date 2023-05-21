@@ -240,6 +240,18 @@ def get_current_order(order_id):
     return current_order
 
 
+def get_full_address(block_number, unit_number, street, postal_code):
+    """
+    Get the full address string with the necessary fields.
+    :param block_number: str
+    :param unit_number: str
+    :param street: str
+    :param postal_code: str
+    :return: str
+    """
+    return f"Block {block_number}{f', #{unit_number}' if unit_number else ''}, {street.title()}, Singapore {postal_code}"
+
+
 """
 All Routes
 """
@@ -358,7 +370,23 @@ def selectedorder(order_id):
     if 'logged_in' in session:
         driver_id = session['driver_id']
         current_order = get_current_order(order_id)
-        print(current_order)
+        is_pending = bool(current_order[-1])
+
+        start_location_block_number = current_order[1]
+        start_location_unit_number = current_order[2]
+        start_location_street = current_order[3]
+        start_location_postal_code = current_order[4]
+        start_location_address = get_full_address(start_location_block_number, start_location_unit_number,
+                                                  start_location_street, start_location_postal_code)
+
+        end_location_block_number = current_order[6]
+        end_location_unit_number = current_order[7]
+        end_location_street = current_order[8]
+        end_location_postal_code = current_order[9]
+        end_location_address = get_full_address(end_location_block_number, end_location_unit_number,
+                                                end_location_street, end_location_postal_code)
+
+        print(start_location_address, end_location_address, sep="|")
         return render_template("selectedorder.html", order_id=order_id)
     else:
         return redirect(url_for('login'))
