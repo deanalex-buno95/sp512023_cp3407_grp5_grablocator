@@ -316,9 +316,12 @@ def orders():
         return redirect(url_for('login'))
 
 
-@app.route('/selectedorder/<order_id>')
+@app.route('/selectedorder/<string:order_id>')
 def selectedorder(order_id):
-    pass
+    if 'logged_in' in session:
+        return render_template("selectedorder.html", order_id=order_id)
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/history')

@@ -45,7 +45,7 @@
         <ul style="list-style-type:none;" class="available-graborder-list">
             {% for available_order in available_orders %}
                 <li>
-                    <button type="button" class="available-graborder-order" onclick="">
+                    <button type="button" class="available-graborder-order" onclick="redirectTo('/selectedorder/{{ available_order[0] }}')">
                         {{ available_order[0] }}
                         <div class="row">
                             <div class="col">
@@ -97,7 +97,7 @@
         <ul style="list-style-type:none;" class="pending-graborder-list">
             {% for pending_order in pending_orders %}
                 <li>
-                    <button type="button" class="pending-graborder-order" onclick="">
+                    <button type="button" class="pending-graborder-order" onclick="redirectTo('/selectedorder/{{ pending_order[0] }}')">
                         {{ pending_order[0] }}
                         <div class="row">
                             <div class="col">
