@@ -12,6 +12,10 @@ from forms import RegisterForm, LoginForm
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "c2e3QoE'Ug)C--xJ(SHu?+R+9bd^ap"
 
+EXPERIENCED_QUOTA = 5
+VERY_EXPERIENCED_QUOTA = 8
+MINIMUM_OLD_AGE = 50
+
 """
 All Functions
 """
@@ -212,9 +216,10 @@ def get_current_order(order_id):
     connection = sqlite3.connect("grab_locator.db")
     cursor = connection.cursor()
     current_order_query = """
-                          SELECT PickupDestAddress.address_id, PickupDestAddress.address_block_number, 
-                          PickupDestAddress.address_unit_number, PickupDestAddress.address_street, 
-                          PickupDestAddress.address_postal_code, FinalDestAddress.address_id,
+                          SELECT PickupDestAddress.address_id, PickupD.dest_name,
+                          PickupDestAddress.address_block_number, PickupDestAddress.address_unit_number, 
+                          PickupDestAddress.address_street, PickupDestAddress.address_postal_code,
+                          FinalDestAddress.address_id, FinalD.dest_name,
                           FinalDestAddress.address_block_number, FinalDestAddress.address_unit_number,
                           FinalDestAddress.address_street, FinalDestAddress.address_postal_code,
                           (
@@ -240,19 +245,20 @@ def get_current_order(order_id):
     return current_order
 
 
-def get_full_address(block_number, unit_number, street, postal_code):
+def get_full_address_string(name, block_number, unit_number, street, postal_code):
     """
     Get the full address string with the necessary fields.
+    :param name: str
     :param block_number: str
     :param unit_number: str
     :param street: str
     :param postal_code: str
     :return: str
     """
-    return f"Block {block_number}{f', #{unit_number}' if unit_number else ''}, {street.title()}, Singapore {postal_code}"
+    return f"{f'{name}, ' if name else ''}Block {block_number}{f', #{unit_number}' if unit_number else ''}, {street.title()}, Singapore {postal_code}"
 
 
-def get_order_from_station_is_intersectional(station_id, final_destination_postal_code):
+def get_order_from_station_is_intersector(station_id, final_destination_postal_code):
     """
     Check if the order that starts from a station is intersectional.
     :param station_id: str
@@ -448,33 +454,69 @@ def selectedorder(order_id):
         is_pending = bool(current_order[-1])
 
         # Get the pickup destination.
-        pickup_destination_block_number = current_order[1]
-        pickup_destination_unit_number = current_order[2]
-        pickup_destination_street = current_order[3]
-        pickup_destination_postal_code = current_order[4]
-        pickup_destination_address = get_full_address(pickup_destination_block_number, pickup_destination_unit_number,
-                                                      pickup_destination_street, pickup_destination_postal_code)
+        pickup_destination_id = current_order[0]
+        pickup_destination_name = current_order[1]
+        pickup_destination_block_number = current_order[2]
+        pickup_destination_unit_number = current_order[3]
+        pickup_destination_street = current_order[4]
+        pickup_destination_postal_code = current_order[5]
+        pickup_destination_address_string = get_full_address_string(pickup_destination_name,
+                                                                    pickup_destination_block_number,
+                                                                    pickup_destination_unit_number,
+                                                                    pickup_destination_street,
+                                                                    pickup_destination_postal_code)
 
         # Get the final destination.
-        final_destination_block_number = current_order[6]
-        final_destination_unit_number = current_order[7]
-        final_destination_street = current_order[8]
-        final_destination_postal_code = current_order[9]
-        final_destination_address = get_full_address(final_destination_block_number, final_destination_unit_number,
-                                                     final_destination_street, final_destination_postal_code)
+        final_destination_id = current_order[6]
+        final_destination_name = current_order[7]
+        final_destination_block_number = current_order[8]
+        final_destination_unit_number = current_order[9]
+        final_destination_street = current_order[10]
+        final_destination_postal_code = current_order[11]
+        final_destination_address_string = get_full_address_string(final_destination_name,
+                                                                   final_destination_block_number,
+                                                                   final_destination_unit_number,
+                                                                   final_destination_street,
+                                                                   final_destination_postal_code)
 
-        # Check if the order is intra- or inter-sectional.
-        pickup_destination_id = current_order[0]
+        # Check if the order is intra- or inter-sector.
         if pickup_destination_id[:2] == "ST":  # Is a station.
-            order_is_intersectional = get_order_from_station_is_intersectional(pickup_destination_id, final_destination_postal_code)
+            order_is_intersector = get_order_from_station_is_intersector(pickup_destination_id,
+                                                                         final_destination_postal_code)
         else:  # Is not a station.
-            order_is_intersectional = (pickup_destination_postal_code[:2] != final_destination_postal_code[:2])  # Check that the postal sectors are different.
+            order_is_intersector = (pickup_destination_postal_code[:2] != final_destination_postal_code[
+                                                                          :2])  # Check that the postal sectors are different.
 
         # Age and experience.
         age, experience = get_age_and_experience_of_driver(driver_id)
-        print(age, experience)
 
-        return render_template("selectedorder.html", order_id=order_id)
+        # Determine where should the driver stop after winning.
+        if order_is_intersector:  # Inter-sector
+            if pickup_destination_id[:2] == "ST":  # Is a station, start from closest station to pickup.
+                if age < MINIMUM_OLD_AGE and experience >= EXPERIENCED_QUOTA:  # Go to final destination.
+                    stopping_point_id = final_destination_id
+                else:  # Go to the station that is closest to the final destination.
+                    stopping_point_id = get_nearest_station_code_from_postal_sector(final_destination_id[:2])
+            else:  # Is not a station, start from pickup.
+                if age < MINIMUM_OLD_AGE and experience >= EXPERIENCED_QUOTA:  # At minimum, go to the other sector.
+                    stopping_point_id = get_nearest_station_code_from_postal_sector(final_destination_id[:2])
+                    if experience >= VERY_EXPERIENCED_QUOTA:  # Overwrite if the person is very experienced.
+                        stopping_point_id = final_destination_id
+                else:  # Go to the station nearest to the pickup.
+                    stopping_point_id = get_nearest_station_code_from_postal_sector(pickup_destination_id[:2])
+        else:  # Intra-sector
+            if pickup_destination_id[:2] == "ST":  # Is a station.
+                stopping_point_id = final_destination_id
+            else:  # Is not a station.
+                if age < MINIMUM_OLD_AGE and experience >= EXPERIENCED_QUOTA:
+                    stopping_point_id = final_destination_id
+                else:  # Is not a station.
+                    stopping_point_id = get_nearest_station_code_from_postal_sector(final_destination_id[:2])
+        print(stopping_point_id)
+
+        return render_template("selectedorder.html", order_id=order_id,
+                               pickup_destination_address_string=pickup_destination_address_string,
+                               final_destination_address_string=final_destination_address_string)
     else:
         return redirect(url_for('login'))
 
