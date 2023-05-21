@@ -55,7 +55,7 @@ if __name__ == '__main__':
                                             order_pickupdest_address_unit_number, order_pickupdest_address_street,
                                             order_pickupdest_address_postal_code)
                 order_pickupdest_destination = (order_pickupdest_address_id, order_pickupdest_name)
-                order_pickupdest = (order_pickupdest_address_id, False)
+                order_pickupdest = (order_pickupdest_address_id,)
 
                 order_finaldest_address_id = f"{order_finaldest_address_postal_code}|{order_finaldest_address_unit_number}" if order_finaldest_address_unit_number is not None else str(order_finaldest_address_postal_code)
                 order_finaldest_address = (order_finaldest_address_id, order_finaldest_address_block_number,
@@ -77,8 +77,8 @@ if __name__ == '__main__':
                                           VALUES (?, ?)
                                           """
                 order_pickupdest_query = """
-                                         INSERT INTO PICKUPDEST (pickupdest_id, pickupdest_is_station)
-                                         VALUES (?, ?)
+                                         INSERT INTO PICKUPDEST (pickupdest_id)
+                                         VALUES (?)
                                          """
                 order_finaldest_query = """
                                         INSERT INTO FINALDEST (finaldest_id)
