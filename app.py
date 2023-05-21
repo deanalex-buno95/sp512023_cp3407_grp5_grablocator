@@ -176,8 +176,8 @@ def get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_
 def get_pending_orders_of_driver(driver_id):
     """
     Get pending orders of the driver.
-    :param driver_id:
-    :return:
+    :param driver_id: str
+    :return: list
     """
     connection = sqlite3.connect("grab_locator.db")
     cursor = connection.cursor()
@@ -201,6 +201,43 @@ def get_pending_orders_of_driver(driver_id):
     pending_orders = cursor.fetchall()
     connection.close()
     return pending_orders
+
+
+def get_current_order(order_id):
+    """
+    Get order currently in the selected order page.
+    :param order_id: str
+    :return: list
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    current_order_query = """
+                          SELECT PickupDestAddress.address_id, PickupDestAddress.address_block_number, 
+                          PickupDestAddress.address_unit_number, PickupDestAddress.address_street, 
+                          PickupDestAddress.address_postal_code, FinalDestAddress.address_id,
+                          FinalDestAddress.address_block_number, FinalDestAddress.address_unit_number,
+                          FinalDestAddress.address_street, FinalDestAddress.address_postal_code,
+                          (
+                              CASE WHEN graborder_driver_id IS NOT NULL THEN
+                                  1
+                              ELSE
+                                  0
+                              END
+                          ) AS 'is_pending'
+                          FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
+                          JOIN PICKUPDEST ON GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
+                          JOIN FINALDEST ON GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
+                          JOIN DESTINATION PickupD ON PICKUPDEST.pickupdest_id = PickupD.dest_address_id
+                          JOIN DESTINATION FinalD ON FINALDEST.finaldest_id = FinalD.dest_address_id
+                          WHERE PickupD.dest_address_id = PickupDestAddress.address_id
+                          AND FinalD.dest_address_id = FinalDestAddress.address_id
+                          AND graborder_id = ?
+                          """
+    current_order_data = (order_id,)
+    cursor.execute(current_order_query, current_order_data)
+    current_order = cursor.fetchone()
+    connection.close()
+    return current_order
 
 
 """
@@ -319,6 +356,9 @@ def orders():
 @app.route('/selectedorder/<string:order_id>')
 def selectedorder(order_id):
     if 'logged_in' in session:
+        driver_id = session['driver_id']
+        current_order = get_current_order(order_id)
+        print(current_order)
         return render_template("selectedorder.html", order_id=order_id)
     else:
         return redirect(url_for('login'))
