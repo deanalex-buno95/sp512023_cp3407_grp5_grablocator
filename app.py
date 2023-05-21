@@ -12,6 +12,10 @@ from forms import RegisterForm, LoginForm
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "c2e3QoE'Ug)C--xJ(SHu?+R+9bd^ap"
 
+EXPERIENCED_QUOTA = 5
+VERY_EXPERIENCED_QUOTA = 8
+MINIMUM_OLD_AGE = 50
+
 """
 All Functions
 """
@@ -176,8 +180,8 @@ def get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_
 def get_pending_orders_of_driver(driver_id):
     """
     Get pending orders of the driver.
-    :param driver_id:
-    :return:
+    :param driver_id: str
+    :return: list
     """
     connection = sqlite3.connect("grab_locator.db")
     cursor = connection.cursor()
@@ -203,6 +207,118 @@ def get_pending_orders_of_driver(driver_id):
     return pending_orders
 
 
+def get_current_order(order_id):
+    """
+    Get order currently in the selected order page.
+    :param order_id: str
+    :return: list
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    current_order_query = """
+                          SELECT PickupDestAddress.address_id, PickupD.dest_name,
+                          PickupDestAddress.address_block_number, PickupDestAddress.address_unit_number, 
+                          PickupDestAddress.address_street, PickupDestAddress.address_postal_code,
+                          FinalDestAddress.address_id, FinalD.dest_name,
+                          FinalDestAddress.address_block_number, FinalDestAddress.address_unit_number,
+                          FinalDestAddress.address_street, FinalDestAddress.address_postal_code,
+                          (
+                              CASE WHEN graborder_driver_id IS NOT NULL THEN
+                                  1
+                              ELSE
+                                  0
+                              END
+                          ) AS 'is_pending'
+                          FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
+                          JOIN PICKUPDEST ON GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
+                          JOIN FINALDEST ON GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
+                          JOIN DESTINATION PickupD ON PICKUPDEST.pickupdest_id = PickupD.dest_address_id
+                          JOIN DESTINATION FinalD ON FINALDEST.finaldest_id = FinalD.dest_address_id
+                          WHERE PickupD.dest_address_id = PickupDestAddress.address_id
+                          AND FinalD.dest_address_id = FinalDestAddress.address_id
+                          AND graborder_id = ?
+                          """
+    current_order_data = (order_id,)
+    cursor.execute(current_order_query, current_order_data)
+    current_order = cursor.fetchone()
+    connection.close()
+    return current_order
+
+
+def get_full_address_string(name, block_number, unit_number, street, postal_code):
+    """
+    Get the full address string with the necessary fields.
+    :param name: str
+    :param block_number: str
+    :param unit_number: str
+    :param street: str
+    :param postal_code: str
+    :return: str
+    """
+    return f"{f'{name}, ' if name else ''}Block {block_number}{f', #{unit_number}' if unit_number else ''}, {street.title()}, Singapore {postal_code}"
+
+
+def get_order_from_station_is_intersector(station_id, final_destination_postal_code):
+    """
+    Check if the order that starts from a station is intersectional.
+    :param station_id: str
+    :param final_destination_postal_code: str
+    :return: bool
+    """
+    station_to_postal_sectors_dictionary = {"ST01": ("01", "02", "03", "04", "05", "06"),
+                                            "ST02": ("07", "08"),
+                                            "ST03": ("14", "15", "16"),
+                                            "ST04": ("09", "10"),
+                                            "ST05": ("11", "12", "13"),
+                                            "ST06": ("17",),
+                                            "ST07": ("18", "19"),
+                                            "ST08": ("20", "21"),
+                                            "ST09": ("22", "23"),
+                                            "ST10": ("24", "25", "26", "27"),
+                                            "ST11": ("28", "29", "30"),
+                                            "ST12": ("31", "32", "33"),
+                                            "ST13": ("34", "35", "36", "37"),
+                                            "ST14": ("38", "39", "40", "41"),
+                                            "ST15": ("42", "43", "44", "45"),
+                                            "ST16": ("46", "47", "48"),
+                                            "ST17": ("49", "50", "81"),
+                                            "ST18": ("51", "52"),
+                                            "ST19": ("53", "54", "55", "82"),
+                                            "ST20": ("56", "57"),
+                                            "ST21": ("58", "59"),
+                                            "ST22": ("60", "61", "62", "63", "64"),
+                                            "ST23": ("65", "66", "67", "68"),
+                                            "ST24": ("69", "70", "71", "72", "73"),
+                                            "ST25": ("77", "78"),
+                                            "ST26": ("75", "76"),
+                                            "ST27": ("79", "80")}
+    return True if final_destination_postal_code[:2] not in station_to_postal_sectors_dictionary[station_id] else False
+
+
+def get_age_and_experience_of_driver(driver_id):
+    """
+    Get the age and experience of the driver.
+    :param driver_id: str
+    :return: tuple
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    driver_age_and_experience_query = """
+                                      SELECT
+                                      strftime('%Y', 'now') - strftime('%Y', driver_dob) -
+                                      (strftime('%m-%d', 'now') < strftime('%m-%d', driver_dob)),
+                                      strftime('%Y', 'now') - strftime('%Y', driver_hire_date) -
+                                      (strftime('%m-%d', 'now') < strftime('%m-%d', driver_hire_date))
+                                      FROM DRIVER
+                                      WHERE driver_id = ?
+                                      """
+    driver_age_and_experience_data = (driver_id,)
+    cursor.execute(driver_age_and_experience_query, driver_age_and_experience_data)
+    driver_age_and_experience = cursor.fetchone()
+    connection.close()
+    return driver_age_and_experience
+
+
 """
 All Routes
 """
@@ -226,6 +342,7 @@ def login():
             return redirect(url_for('index'))
         else:
             print("Password incorrect!")
+
     return render_template("login.html", form=form)
 
 
@@ -289,15 +406,21 @@ def register():
             session['logged_in'] = True
             session['driver_id'] = driver_id
             return redirect(url_for('index'))
+
     return render_template("register.html", form=form)
 
 
 @app.route('/')
 def index():
     if 'logged_in' in session:
+        # Take driver ID.
         driver_id = session['driver_id']
+
+        # Get driver name.
         driver_name = get_driver_name_from_driver_id(driver_id).title()
+
         return render_template("index.html", driver_name=driver_name)
+
     else:
         return redirect(url_for('login'))
 
@@ -305,12 +428,16 @@ def index():
 @app.route('/orders')
 def orders():
     if 'logged_in' in session:
+        # Take driver ID.
         driver_id = session['driver_id']
+
+        # Get all needed information.
         driver_postal_code = get_driver_postal_code_from_driver_id(driver_id)
         driver_postal_sector = driver_postal_code[:2]
         driver_nearest_station_code = get_nearest_station_code_from_postal_sector(driver_postal_sector)
         available_orders = get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_code)
         pending_orders = get_pending_orders_of_driver(driver_id)
+
         return render_template("orders.html", available_orders=available_orders, pending_orders=pending_orders)
     else:
         return redirect(url_for('login'))
@@ -319,7 +446,78 @@ def orders():
 @app.route('/selectedorder/<string:order_id>')
 def selectedorder(order_id):
     if 'logged_in' in session:
-        return render_template("selectedorder.html", order_id=order_id)
+        # Take driver ID.
+        driver_id = session['driver_id']
+
+        # Get current order and its status.
+        current_order = get_current_order(order_id)
+        is_pending = bool(current_order[-1])
+
+        # Get the pickup destination.
+        pickup_destination_id = current_order[0]
+        pickup_destination_name = current_order[1]
+        pickup_destination_block_number = current_order[2]
+        pickup_destination_unit_number = current_order[3]
+        pickup_destination_street = current_order[4]
+        pickup_destination_postal_code = current_order[5]
+        pickup_destination_address_string = get_full_address_string(pickup_destination_name,
+                                                                    pickup_destination_block_number,
+                                                                    pickup_destination_unit_number,
+                                                                    pickup_destination_street,
+                                                                    pickup_destination_postal_code)
+
+        # Get the final destination.
+        final_destination_id = current_order[6]
+        final_destination_name = current_order[7]
+        final_destination_block_number = current_order[8]
+        final_destination_unit_number = current_order[9]
+        final_destination_street = current_order[10]
+        final_destination_postal_code = current_order[11]
+        final_destination_address_string = get_full_address_string(final_destination_name,
+                                                                   final_destination_block_number,
+                                                                   final_destination_unit_number,
+                                                                   final_destination_street,
+                                                                   final_destination_postal_code)
+
+        # Check if the order is intra- or inter-sector.
+        if pickup_destination_id[:2] == "ST":  # Is a station.
+            order_is_intersector = get_order_from_station_is_intersector(pickup_destination_id,
+                                                                         final_destination_postal_code)
+        else:  # Is not a station.
+            order_is_intersector = (pickup_destination_postal_code[:2] != final_destination_postal_code[
+                                                                          :2])  # Check that the postal sectors are different.
+
+        # Age and experience.
+        age, experience = get_age_and_experience_of_driver(driver_id)
+
+        # Determine where should the driver stop after winning.
+        if order_is_intersector:  # Inter-sector
+            if pickup_destination_id[:2] == "ST":  # Is a station, start from closest station to pickup.
+                if age < MINIMUM_OLD_AGE and experience >= EXPERIENCED_QUOTA:  # Go to final destination.
+                    stopping_point_id = final_destination_id
+                else:  # Go to the station that is closest to the final destination.
+                    stopping_point_id = get_nearest_station_code_from_postal_sector(final_destination_id[:2])
+            else:  # Is not a station, start from pickup.
+                if age < MINIMUM_OLD_AGE and experience >= EXPERIENCED_QUOTA:  # At minimum, go to the other sector.
+                    stopping_point_id = get_nearest_station_code_from_postal_sector(final_destination_id[:2])
+                    if experience >= VERY_EXPERIENCED_QUOTA:  # Overwrite if the person is very experienced.
+                        stopping_point_id = final_destination_id
+                else:  # Go to the station nearest to the pickup.
+                    stopping_point_id = get_nearest_station_code_from_postal_sector(pickup_destination_id[:2])
+        else:  # Intra-sector
+            if pickup_destination_id[:2] == "ST":  # Is a station.
+                stopping_point_id = final_destination_id
+            else:  # Is not a station.
+                if age < MINIMUM_OLD_AGE and experience >= EXPERIENCED_QUOTA:
+                    stopping_point_id = final_destination_id
+                else:  # Is not a station.
+                    stopping_point_id = get_nearest_station_code_from_postal_sector(final_destination_id[:2])
+        print(stopping_point_id)
+
+        return render_template("selectedorder.html", order_id=order_id,
+                               pickup_destination_address_string=pickup_destination_address_string,
+                               final_destination_address_string=final_destination_address_string,
+                               is_pending=is_pending)
     else:
         return redirect(url_for('login'))
 

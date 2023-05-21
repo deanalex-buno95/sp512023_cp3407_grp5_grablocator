@@ -8,4 +8,48 @@
     <h1 class="page-title">
         Order {{ order_id }}
     </h1>
+    <div class="row">
+        <h2>
+            Order Details
+        </h2>
+        <div class="col">
+            <h3>
+                From
+            </h3>
+            <p>
+                {{ pickup_destination_address_string }}
+            </p>
+        </div>
+        <div class="col">
+            <h3>
+                To
+            </h3>
+            <p>
+                {{ final_destination_address_string }}
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <h2>
+            Stopping Point
+        </h2>
+
+        <div class="col">
+            {% if is_pending %}
+                <button>
+                    Finish
+                </button>
+            {% else %}
+                <button>
+                    Start
+                </button>
+            {% endif %}
+        </div>
+        <div class="col">
+            <button>
+                Return to Orders
+            </button>
+        </div>
+
+    </div>
 {% endblock %}

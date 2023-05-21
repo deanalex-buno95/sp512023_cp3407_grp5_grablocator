@@ -46,7 +46,7 @@ if __name__ == '__main__':
                 station_address = (station_id, station_address_block_number, station_address_street,
                                    station_address_postal_code)
                 station_destination = (station_id, station_name)
-                station_pickupdest = (station_id, True)
+                station_pickupdest = (station_id,)
 
                 # Create the queries.
                 station_address_query = """
@@ -59,8 +59,8 @@ if __name__ == '__main__':
                                             VALUES (?, ?)
                                             """
                 station_pickupdest_query = """
-                                           INSERT INTO PICKUPDEST (pickupdest_id, pickupdest_is_station)
-                                           VALUES (?, ?)
+                                           INSERT INTO PICKUPDEST (pickupdest_id)
+                                           VALUES (?)
                                            """
 
                 # Execute all queries.
