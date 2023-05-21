@@ -386,23 +386,27 @@ def selectedorder(order_id):
         current_order = get_current_order(order_id)
         is_pending = bool(current_order[-1])
 
-        # Get the pickup location.
-        start_location_block_number = current_order[1]
-        start_location_unit_number = current_order[2]
-        start_location_street = current_order[3]
-        start_location_postal_code = current_order[4]
-        start_location_address = get_full_address(start_location_block_number, start_location_unit_number,
-                                                  start_location_street, start_location_postal_code)
+        # Get the pickup destination.
+        pickup_destination_block_number = current_order[1]
+        pickup_destination_unit_number = current_order[2]
+        pickup_destination_street = current_order[3]
+        pickup_destination_postal_code = current_order[4]
+        pickup_destination_address = get_full_address(pickup_destination_block_number, pickup_destination_unit_number,
+                                                      pickup_destination_street, pickup_destination_postal_code)
 
-        # Get the final location.
-        end_location_block_number = current_order[6]
-        end_location_unit_number = current_order[7]
-        end_location_street = current_order[8]
-        end_location_postal_code = current_order[9]
-        end_location_address = get_full_address(end_location_block_number, end_location_unit_number,
-                                                end_location_street, end_location_postal_code)
+        # Get the final destination.
+        final_destination_block_number = current_order[6]
+        final_destination_unit_number = current_order[7]
+        final_destination_street = current_order[8]
+        final_destination_postal_code = current_order[9]
+        final_destination_address = get_full_address(final_destination_block_number, final_destination_unit_number,
+                                                     final_destination_street, final_destination_postal_code)
 
-        print(start_location_address, end_location_address, sep="|")
+        # Check if the order starts from a station.
+        pickup_destination_id = current_order[0]
+        is_station = (pickup_destination_id[:2] == "ST")
+        print(pickup_destination_id, is_station)
+
         return render_template("selectedorder.html", order_id=order_id)
     else:
         return redirect(url_for('login'))
