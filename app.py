@@ -156,12 +156,12 @@ def get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_
                              PickupDestAddress.address_postal_code, FinalDestAddress.address_block_number,
                              FinalDestAddress.address_unit_number, FinalDestAddress.address_street,
                              FinalDestAddress.address_postal_code
-                             FROM GRABORDER, PICKUPDEST, FINALDEST, DESTINATION PickupD, DESTINATION FinalD,
-                             ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
-                             WHERE GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
-                             AND GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
-                             AND PICKUPDEST.pickupdest_id = PickupD.dest_address_id
-                             AND FINALDEST.finaldest_id = FinalD.dest_address_id
+                             FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
+                             JOIN PICKUPDEST ON GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
+                             JOIN FINALDEST ON GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
+                             JOIN DESTINATION PickupD ON PICKUPDEST.pickupdest_id = PickupD.dest_address_id
+                             JOIN DESTINATION FinalD ON FINALDEST.finaldest_id = FinalD.dest_address_id
+                             WHERE graborder_driver_id IS NULL
                              AND PickupD.dest_address_id = PickupDestAddress.address_id
                              AND FinalD.dest_address_id = FinalDestAddress.address_id
                              AND (PickupDestAddress.address_postal_code LIKE ? OR PickupDestAddress.address_id = ?)
@@ -171,6 +171,36 @@ def get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_
     available_orders = cursor.fetchall()
     connection.close()
     return available_orders
+
+
+def get_pending_orders_of_driver(driver_id):
+    """
+    Get pending orders of the driver.
+    :param driver_id:
+    :return:
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    pending_orders_query = """
+                           SELECT graborder_id, PickupDestAddress.address_block_number,
+                           PickupDestAddress.address_unit_number, PickupDestAddress.address_street,
+                           PickupDestAddress.address_postal_code, FinalDestAddress.address_block_number,
+                           FinalDestAddress.address_unit_number, FinalDestAddress.address_street,
+                           FinalDestAddress.address_postal_code
+                           FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
+                           JOIN PICKUPDEST ON GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
+                           JOIN FINALDEST ON GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
+                           JOIN DESTINATION PickupD ON PICKUPDEST.pickupdest_id = PickupD.dest_address_id
+                           JOIN DESTINATION FinalD ON FINALDEST.finaldest_id = FinalD.dest_address_id
+                           WHERE PickupD.dest_address_id = PickupDestAddress.address_id
+                           AND FinalD.dest_address_id = FinalDestAddress.address_id
+                           AND graborder_driver_id = ?
+                           """
+    pending_orders_data = (driver_id,)
+    cursor.execute(pending_orders_query, pending_orders_data)
+    pending_orders = cursor.fetchall()
+    connection.close()
+    return pending_orders
 
 
 """
@@ -280,10 +310,15 @@ def orders():
         driver_postal_sector = driver_postal_code[:2]
         driver_nearest_station_code = get_nearest_station_code_from_postal_sector(driver_postal_sector)
         available_orders = get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_code)
-        print(available_orders)
-        return render_template("orders.html", available_orders=available_orders)
+        pending_orders = get_pending_orders_of_driver(driver_id)
+        return render_template("orders.html", available_orders=available_orders, pending_orders=pending_orders)
     else:
         return redirect(url_for('login'))
+
+
+@app.route('/selectedorder/<order_id>')
+def selectedorder(order_id):
+    pass
 
 
 @app.route('/history')
