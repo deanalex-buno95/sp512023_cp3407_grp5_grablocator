@@ -516,7 +516,8 @@ def selectedorder(order_id):
 
         return render_template("selectedorder.html", order_id=order_id,
                                pickup_destination_address_string=pickup_destination_address_string,
-                               final_destination_address_string=final_destination_address_string)
+                               final_destination_address_string=final_destination_address_string,
+                               is_pending=is_pending)
     else:
         return redirect(url_for('login'))
 

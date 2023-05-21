@@ -29,4 +29,27 @@
             </p>
         </div>
     </div>
+    <div class="row">
+        <h2>
+            Stopping Point
+        </h2>
+
+        <div class="col">
+            {% if is_pending %}
+                <button>
+                    Finish
+                </button>
+            {% else %}
+                <button>
+                    Start
+                </button>
+            {% endif %}
+        </div>
+        <div class="col">
+            <button>
+                Return to Orders
+            </button>
+        </div>
+
+    </div>
 {% endblock %}
