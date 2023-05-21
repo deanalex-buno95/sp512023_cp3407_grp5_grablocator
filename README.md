@@ -1,4 +1,4 @@
-# CP3405 (SP51 2023) Group 5 Project – GrabLocator
+# CP3407 (SP51 2023) Group 5 Project – GrabLocator
 
 ## Project Description
 
@@ -33,8 +33,9 @@ Here are the list of files used for this assignment:
     - `layout.html` — Base HTML file used for the layout of the whole website.
     - `login.html` — Login form for existing users of the website.
     - `register.html` — Registration form for new users of the website.
-    - `index.html` — Main dashboard that shows the two main functions
-    - `orders.html` — Main functionality, to accept orders based on age and experience.
+    - `index.html` — Main dashboard that shows the two main functions.
+    - `orders.html` — A list of orders available and pending.
+    - `selectedorder.html` — Main functionality, to accept orders based on age and experience.
     - `history.html` — History page to show which locations you have been.
     - `about.html` — About page.
     - `contact.html` — Contact page.
