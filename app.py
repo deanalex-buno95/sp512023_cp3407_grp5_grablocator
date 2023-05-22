@@ -398,6 +398,24 @@ def get_driver_history_list(driver_id):
     return driver_history_list
 
 
+def start_order(driver_id, order_id):
+    """
+    Start the driver's chosen order.
+    :param driver_id: str
+    :param order_id: str
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    start_order_query = """
+                        UPDATE GRABORDER
+                        SET graborder_driver_id = :driver_id
+                        WHERE graborder_id = :order_id
+                        """
+    start_order_data = {"driver_id": driver_id, "order_id": order_id}
+    cursor.execute(start_order_query, start_order_data)
+    connection.close()
+
+
 """
 All Routes
 """
@@ -603,6 +621,21 @@ def selectedorder(order_id):
                                stopping_point_address=stopping_point_address)
     else:
         return redirect(url_for('login'))
+
+
+@app.route('/startorder/<string:order_id>')
+def startorder(order_id):
+    if 'logged_in' in session:
+        driver_id = session['driver_id']
+        start_order(driver_id, order_id)
+        return redirect(url_for('orders'))
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/finishorder/<string:order_id>')
+def finishorder(order_id):
+    pass
 
 
 @app.route('/history')
