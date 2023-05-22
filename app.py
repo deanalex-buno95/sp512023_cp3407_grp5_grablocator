@@ -347,6 +347,39 @@ def get_stopping_point_address(stopping_point_id):
     return stopping_point_address_string
 
 
+def get_driver_history_list(driver_id):
+    """
+    Get the driver's history of locations explored.
+    :param driver_id: str
+    :return: list
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    driver_history_list_query = """
+                                SELECT
+                                dest_name, address_block_number, address_unit_number, address_street,
+                                address_postal_code, driverdest_date
+                                FROM DRIVERDEST, DESTINATION, ADDRESS
+                                JOIN DRIVER ON DRIVER.driver_id = DRIVERDEST.driverdest_driver_id
+                                WHERE DRIVERDEST.driverdest_dest_address_id = DESTINATION.dest_address_id
+                                AND DESTINATION.dest_address_id = ADDRESS.address_id
+                                AND DRIVER.driver_id = ?
+                                """
+    driver_history_list_data = (driver_id,)
+    cursor.execute(driver_history_list_query, driver_history_list_data)
+    driver_history_list_temp = cursor.fetchall()
+    driver_history_list = []
+    for driver_history in driver_history_list_temp:
+        driver_history_address = get_full_address_string(driver_history[0],
+                                                         driver_history[1],
+                                                         driver_history[2],
+                                                         driver_history[3],
+                                                         driver_history[4])
+        driver_history_list.append((driver_history_address, driver_history[5]))
+    connection.close()
+    return driver_history_list
+
+
 """
 All Routes
 """
@@ -557,7 +590,9 @@ def selectedorder(order_id):
 @app.route('/history')
 def history():
     if 'logged_in' in session:
-        return render_template("history.html")
+        driver_id = session['driver_id']
+        driver_history_list = get_driver_history_list(driver_id)
+        return render_template("history.html", driver_history_list=driver_history_list)
     else:
         return redirect(url_for('login'))
 
