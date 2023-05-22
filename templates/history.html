@@ -38,7 +38,26 @@
     <h1 class="page-title">
         Your Locations History
     </h1>
-
+    <table class="history-table">
+        <tr>
+            <th>
+                Address
+            </th>
+            <th>
+                Date
+            </th>
+        </tr>
+        {% for driver_history in driver_history_list %}
+            <tr>
+                <td>
+                    {{ driver_history[0] }}
+                </td>
+                <td>
+                    {{ driver_history[1] }}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
 {% endblock %}
 
 {% block navmenublockfooter %}
