@@ -222,9 +222,9 @@ def get_current_order(order_id):
                           FinalDestAddress.address_id, FinalD.dest_name,
                           FinalDestAddress.address_block_number, FinalDestAddress.address_unit_number,
                           FinalDestAddress.address_street, FinalDestAddress.address_postal_code,
-                          (
-                              IF (graborder_driver_id IS NOT NULL, 1, 0)
-                          ) AS 'is_pending'
+                          CASE WHEN graborder_driver_id IS NOT NULL THEN 1
+                          ELSE 0
+                          END AS is_pending
                           FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
                           JOIN PICKUPDEST ON GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
                           JOIN FINALDEST ON GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
