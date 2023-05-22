@@ -38,17 +38,17 @@
         </p>
         <div class="col">
             {% if is_pending %}
-                <button>
+                <button class="finish-button">
                     Finish
                 </button>
             {% else %}
-                <button>
+                <button class="start-button">
                     Start
                 </button>
             {% endif %}
         </div>
         <div class="col">
-            <button>
+            <button class="return-button" onclick="redirectTo('/orders')">
                 Return to Orders
             </button>
         </div>

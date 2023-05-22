@@ -172,8 +172,19 @@ def get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_
                              """
     available_orders_data = (f"{driver_postal_sector}%", driver_nearest_station_code)
     cursor.execute(available_orders_query, available_orders_data)
-    available_orders = cursor.fetchall()
+    available_orders_temporary = cursor.fetchall()
     connection.close()
+    available_orders = []
+    for available_order in available_orders_temporary:
+        available_orders.append((available_order[0],
+                                 available_order[1],
+                                 available_order[2],
+                                 available_order[3].title(),
+                                 available_order[4],
+                                 available_order[5],
+                                 available_order[6],
+                                 available_order[7].title(),
+                                 available_order[8]))
     return available_orders
 
 
@@ -202,8 +213,19 @@ def get_pending_orders_of_driver(driver_id):
                            """
     pending_orders_data = (driver_id,)
     cursor.execute(pending_orders_query, pending_orders_data)
-    pending_orders = cursor.fetchall()
+    pending_orders_temporary = cursor.fetchall()
     connection.close()
+    pending_orders = []
+    for pending_order in pending_orders_temporary:
+        pending_orders.append((pending_order[0],
+                               pending_order[1],
+                               pending_order[2],
+                               pending_order[3].title(),
+                               pending_order[4],
+                               pending_order[5],
+                               pending_order[6],
+                               pending_order[7].title(),
+                               pending_order[8]))
     return pending_orders
 
 
@@ -251,7 +273,7 @@ def get_full_address_string(name, block_number, unit_number, street, postal_code
     :param postal_code: str
     :return: str
     """
-    return f"{f'{name}, ' if name else ''}Block {block_number}{f', #{unit_number}' if unit_number else ''}, {street.title()}, Singapore {postal_code}"
+    return f"{f'{name.title()}, ' if name else ''}Block {block_number}{f', #{unit_number}' if unit_number else ''}, {street.title()}, Singapore {postal_code}"
 
 
 def get_order_from_station_is_intersector(station_id, final_destination_postal_code):
