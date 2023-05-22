@@ -319,6 +319,34 @@ def get_age_and_experience_of_driver(driver_id):
     return driver_age_and_experience
 
 
+def get_stopping_point_address(stopping_point_id):
+    """
+    Get address of the stopping point chosen.
+    :param stopping_point_id: str
+    :return: str
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    stopping_point_address_query = """
+                                   SELECT
+                                   dest_name, address_block_number, address_unit_number, address_street,
+                                   address_postal_code
+                                   FROM ADDRESS, DESTINATION
+                                   WHERE ADDRESS.address_id = DESTINATION.dest_address_id
+                                   AND ADDRESS.address_id = ?
+                                   """
+    stopping_point_address_data = (stopping_point_id,)
+    cursor.execute(stopping_point_address_query, stopping_point_address_data)
+    stopping_point_address = cursor.fetchone()
+    connection.close()
+    stopping_point_address_string = get_full_address_string(stopping_point_address[0],
+                                                            stopping_point_address[1],
+                                                            stopping_point_address[2],
+                                                            stopping_point_address[3],
+                                                            stopping_point_address[4])
+    return stopping_point_address_string
+
+
 """
 All Routes
 """
@@ -514,10 +542,14 @@ def selectedorder(order_id):
                     stopping_point_id = get_nearest_station_code_from_postal_sector(final_destination_id[:2])
         print(stopping_point_id)
 
+        # Get the address of the new stopping point.
+        stopping_point_address = get_stopping_point_address(stopping_point_id)
+
         return render_template("selectedorder.html", order_id=order_id,
                                pickup_destination_address_string=pickup_destination_address_string,
                                final_destination_address_string=final_destination_address_string,
-                               is_pending=is_pending)
+                               is_pending=is_pending,
+                               stopping_point_address=stopping_point_address)
     else:
         return redirect(url_for('login'))
 
