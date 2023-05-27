@@ -155,17 +155,19 @@ def get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_
     connection = sqlite3.connect("grab_locator.db")
     cursor = connection.cursor()
     available_orders_query = """
-                             SELECT graborder_id, PickupDestAddress.address_block_number,
-                             PickupDestAddress.address_unit_number, PickupDestAddress.address_street,
-                             PickupDestAddress.address_postal_code, FinalDestAddress.address_block_number,
+                             SELECT graborder_id, PickupD.dest_name,
+                             PickupDestAddress.address_block_number, PickupDestAddress.address_unit_number,
+                             PickupDestAddress.address_street, PickupDestAddress.address_postal_code,
+                             FinalD.dest_name, FinalDestAddress.address_block_number,
                              FinalDestAddress.address_unit_number, FinalDestAddress.address_street,
                              FinalDestAddress.address_postal_code
-                             FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
+                             FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress, DESTINATION PickupD,
+                             DESTINATION FinalD
                              JOIN PICKUPDEST ON GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
                              JOIN FINALDEST ON GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
-                             JOIN DESTINATION PickupD ON PICKUPDEST.pickupdest_id = PickupD.dest_address_id
-                             JOIN DESTINATION FinalD ON FINALDEST.finaldest_id = FinalD.dest_address_id
                              WHERE graborder_driver_id IS NULL
+                             AND PICKUPDEST.pickupdest_id = PickupD.dest_address_id
+                             AND FINALDEST.finaldest_id = FinalD.dest_address_id
                              AND PickupD.dest_address_id = PickupDestAddress.address_id
                              AND FinalD.dest_address_id = FinalDestAddress.address_id
                              AND (PickupDestAddress.address_postal_code LIKE ? OR PickupDestAddress.address_id = ?)
@@ -176,15 +178,18 @@ def get_available_orders_of_driver(driver_postal_sector, driver_nearest_station_
     connection.close()
     available_orders = []
     for available_order in available_orders_temporary:
-        available_orders.append((available_order[0],
-                                 available_order[1],
-                                 available_order[2],
-                                 available_order[3].title(),
-                                 available_order[4],
-                                 available_order[5],
-                                 available_order[6],
-                                 available_order[7].title(),
-                                 available_order[8]))
+        order_id = available_order[0]
+        pickup_destination_address = get_full_address_string(available_order[1],
+                                                             available_order[2],
+                                                             available_order[3],
+                                                             available_order[4],
+                                                             available_order[5])
+        final_destination_address = get_full_address_string(available_order[6],
+                                                            available_order[7],
+                                                            available_order[8],
+                                                            available_order[9],
+                                                            available_order[10])
+        available_orders.append((order_id, pickup_destination_address, final_destination_address))
     return available_orders
 
 
