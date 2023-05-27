@@ -13,3 +13,8 @@ function getCurrentYear() {
 }
 
 
+/* Redirect to other pages. */
+
+function redirectTo(route) {
+    window.location.href = route;
+}
