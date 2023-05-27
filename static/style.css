@@ -137,3 +137,28 @@ Content
     color: #ffff00;
 }
 
+.available-graborder-order{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #abdbe3;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    margin: 41px auto;
+}
+
+.pending-graborder-order{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9423a;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    overflow: hidden;
+    margin: 41px auto;
+}
