@@ -202,17 +202,19 @@ def get_pending_orders_of_driver(driver_id):
     connection = sqlite3.connect("grab_locator.db")
     cursor = connection.cursor()
     pending_orders_query = """
-                           SELECT graborder_id, PickupDestAddress.address_block_number,
-                           PickupDestAddress.address_unit_number, PickupDestAddress.address_street,
-                           PickupDestAddress.address_postal_code, FinalDestAddress.address_block_number,
+                           SELECT graborder_id, PickupD.dest_name,
+                           PickupDestAddress.address_block_number, PickupDestAddress.address_unit_number,
+                           PickupDestAddress.address_street, PickupDestAddress.address_postal_code,
+                           FinalD.dest_name, FinalDestAddress.address_block_number,
                            FinalDestAddress.address_unit_number, FinalDestAddress.address_street,
                            FinalDestAddress.address_postal_code
-                           FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress
+                           FROM GRABORDER, ADDRESS PickupDestAddress, ADDRESS FinalDestAddress, DESTINATION PickupD,
+                           DESTINATION FinalD
                            JOIN PICKUPDEST ON GRABORDER.graborder_pickupdest_id = PICKUPDEST.pickupdest_id
                            JOIN FINALDEST ON GRABORDER.graborder_finaldest_id = FINALDEST.finaldest_id
-                           JOIN DESTINATION PickupD ON PICKUPDEST.pickupdest_id = PickupD.dest_address_id
-                           JOIN DESTINATION FinalD ON FINALDEST.finaldest_id = FinalD.dest_address_id
-                           WHERE PickupD.dest_address_id = PickupDestAddress.address_id
+                           WHERE PICKUPDEST.pickupdest_id = PickupD.dest_address_id
+                           AND FINALDEST.finaldest_id = FinalD.dest_address_id
+                           AND PickupD.dest_address_id = PickupDestAddress.address_id
                            AND FinalD.dest_address_id = FinalDestAddress.address_id
                            AND graborder_driver_id = ?
                            """
@@ -222,15 +224,18 @@ def get_pending_orders_of_driver(driver_id):
     connection.close()
     pending_orders = []
     for pending_order in pending_orders_temporary:
-        pending_orders.append((pending_order[0],
-                               pending_order[1],
-                               pending_order[2],
-                               pending_order[3].title(),
-                               pending_order[4],
-                               pending_order[5],
-                               pending_order[6],
-                               pending_order[7].title(),
-                               pending_order[8]))
+        order_id = pending_order[0]
+        pickup_destination_address = get_full_address_string(pending_order[1],
+                                                             pending_order[2],
+                                                             pending_order[3],
+                                                             pending_order[4],
+                                                             pending_order[5])
+        final_destination_address = get_full_address_string(pending_order[6],
+                                                            pending_order[7],
+                                                            pending_order[8],
+                                                            pending_order[9],
+                                                            pending_order[10])
+        pending_order.append((order_id, pickup_destination_address, final_destination_address))
     return pending_orders
 
 

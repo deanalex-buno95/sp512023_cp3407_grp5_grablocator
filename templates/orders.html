@@ -76,41 +76,19 @@
             {% for pending_order in pending_orders %}
                 <li>
                     <button type="button" class="pending-graborder-order" onclick="redirectTo('/selectedorder/{{ pending_order[0] }}')">
-                        {{ pending_order[0] }}
+                        <strong>
+                            {{ pending_order[0] }}
+                        </strong>
                         <div class="row">
                             <div class="col">
                                 From
-                                <ul>
-                                    <li>
-                                        Block Number: {{ pending_order[1] }}
-                                    </li>
-                                    <li>
-                                        Unit Number: {{ pending_order[2] }}
-                                    </li>
-                                    <li>
-                                        Street: {{ pending_order[3] }}
-                                    </li>
-                                    <li>
-                                        Postal Code: {{ pending_order[4] }}
-                                    </li>
-                                </ul>
+                                <br>
+                                {{ pending_order[1] }}
                             </div>
                             <div class="col">
                                 To
-                                <ul>
-                                    <li>
-                                        Block Number: {{ pending_order[5] }}
-                                    </li>
-                                    <li>
-                                        Unit Number: {{ pending_order[6] }}
-                                    </li>
-                                    <li>
-                                        Street: {{ pending_order[7] }}
-                                    </li>
-                                    <li>
-                                        Postal Code: {{ pending_order[8] }}
-                                    </li>
-                                </ul>
+                                <br>
+                                {{ pending_order[2] }}
                             </div>
                         </div>
                     </button>
