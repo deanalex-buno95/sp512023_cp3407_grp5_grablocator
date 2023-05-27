@@ -235,7 +235,7 @@ def get_pending_orders_of_driver(driver_id):
                                                             pending_order[8],
                                                             pending_order[9],
                                                             pending_order[10])
-        pending_order.append((order_id, pickup_destination_address, final_destination_address))
+        pending_orders.append((order_id, pickup_destination_address, final_destination_address))
     return pending_orders
 
 
@@ -418,11 +418,12 @@ def start_order(driver_id, order_id):
     cursor = connection.cursor()
     start_order_query = """
                         UPDATE GRABORDER
-                        SET graborder_driver_id = :driver_id
-                        WHERE graborder_id = :order_id
+                        SET graborder_driver_id = ?
+                        WHERE graborder_id = ?
                         """
-    start_order_data = {"driver_id": driver_id, "order_id": order_id}
+    start_order_data = (driver_id, order_id)
     cursor.execute(start_order_query, start_order_data)
+    connection.commit()
     connection.close()
 
 
