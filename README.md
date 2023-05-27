@@ -45,6 +45,8 @@ Here are the list of files used for this assignment:
 - Python:
     - `app.py` — Main application file.
     - `forms.py` — WTForms file that contains all the necessary forms utilized in the website.
+    - `add_orders.py` — Add test orders into the DB.
+    - `add_stations.py` — Add stations into the DB.
 
 
 ## Timeline
@@ -57,5 +59,39 @@ To limit who can reach the `index.html` dashboard, we make use of `session` and 
 Lastly, CSS helps to beautify the website.
 
 ### Sprint 2 (Week 8 to Week 9)
+Sprint 2 involves dealing with the main functionality of the website. 
+The pages meant for this are `history.html`, `orders.html`, and `selectedorder.html`, the latter of which was added from the original list.
+From the `index.html`, after the creation of the two buttons, we would start of with adding stations (intermediate stops) into the DB using `add_stations.py`.
+These will be the intermediate stops that the driver's would be told to go to if he/she meet certain conditions.
 
-### Sprint 3 (Week 10)
+The conditions are as follows:
+- Age (a driver must be aged 21 to 69, but at age 50, the driver is a senior driver, limited to 1 part of travel [an intra-sector trip has 2, while an inter-sector trip has 3]).
+- Years of experience (if you have worked in Grab for 5 years, you will be experienced enough to do two parts of travel, while anyone did for 8 years will do all 3).
+
+All stations would be added to the `ADDRESS`, `DESTINATION`, `PICKUPDEST`, and `FINALDEST` in `grab_locator.db`, denoted by the `ST` prefix.
+After we have added the stations utilizing the `stations.csv` CSV file and `add_stations.py` Python script, we would add the test orders in.
+It is done in the same way as adding the stations but with `add_orders.py` and `orders.csv`.
+Plus, the `GRABORDER` table will also be filled as well as the other 4 tables.
+
+Once we have the needed data added into the DB, we would create the `orders` page that has these two types of orders:
+- Available (no driver ID in the `GRABORDER` record, but linked by postal sector)
+- Pending (with the user's driver ID)
+
+Then, we created the `selectedorder` page, where depending on which order is the parameter, would display the information and prompts.
+Here is a list of information and prompts that it will show:
+- From — The pickup destination.
+- To — The final destination.
+- Stopping Point — The point where the algorithm that takes the age and experience recommends ending the journey at.
+- Prompts:
+    - Start (available order only) — Accept the job that is available, setting it to pending.
+    - Finish (pending order only) — End the job and either reset the pickup destination or remove the order completely.
+
+Lastly, we created the `history` page, where it displays locations that the user has been to during his/her travel.
+This is done by accessing the `DRIVERDEST` table in `grab_locator.db` and showing the address and date that the user has been in that destination.
+
+Key things to note is that at this moment, the JavaScript of this project is still within the `layout.html` file that is used to format the pages.
+We will add a separate JavaScript file to tidy up the JS code for the next SPRINT.
+As for whether the `selectedorder` page will have the map APIs, that remains to be determined provided the limited time.
+
+### Sprint 3 (Week 10 to Study Week 2)
+
