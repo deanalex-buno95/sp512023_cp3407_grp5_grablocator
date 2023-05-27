@@ -93,4 +93,5 @@ Key things to note is that at this moment, the JavaScript of this project is sti
 We will add a separate JavaScript file to tidy up the JS code for the next SPRINT.
 As for whether the `selectedorder` page will have the map APIs, that remains to be determined provided the limited time.
 
-### Sprint 3 (Week 10)
+### Sprint 3 (Week 10 to Study Week 2)
+
