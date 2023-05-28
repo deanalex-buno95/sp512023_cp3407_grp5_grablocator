@@ -161,6 +161,9 @@ Content
     cursor: pointer;
     overflow: hidden;
     margin: 41px auto;
-    color: white;
 }
 
+
+.pending-graborder-order div{
+    color: white;
+}
