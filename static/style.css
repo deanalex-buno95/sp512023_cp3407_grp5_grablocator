@@ -150,6 +150,11 @@ Content
     margin: 41px auto;
 }
 
+.available-graborder-order strong{
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
 .pending-graborder-order{
     display: flex;
     flex-direction: column;
