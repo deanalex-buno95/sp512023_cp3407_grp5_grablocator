@@ -38,7 +38,7 @@
         </p>
         {% if is_pending %}
             <div class="col">
-                <button class="finish-button">
+                <button class="finish-button" onclick="redirectTo('/finishorder/{{ order_id }}/{{ pickup_destination_id }}/{{ final_destination_id }}/{{ stopping_point_id }}')">
                     Finish
                 </button>
             </div>
