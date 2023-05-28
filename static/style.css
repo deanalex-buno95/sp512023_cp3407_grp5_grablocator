@@ -172,7 +172,9 @@ Content
     color: white;
     font-size : 22px;
     margin-bottom: 10px;
+    margin-top: 10px;
 }
 .pending-graborder-order div{
     color: white;
+    margin-bottom: 10px;
 }
