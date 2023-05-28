@@ -427,6 +427,24 @@ def start_order(driver_id, order_id):
     connection.close()
 
 
+def cancel_order(order_id):
+    """
+    Cancel the driver's chosen order while pending.
+    :param order_id: str
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    cancel_order_query = """
+                         UPDATE GRABORDER
+                         SET graborder_driver_id = NULL
+                         WHERE graborder_id = ?
+                         """
+    cancel_order_data = (order_id,)
+    cursor.execute(cancel_order_query, cancel_order_data)
+    connection.commit()
+    connection.close()
+
+
 """
 All Routes
 """
@@ -644,9 +662,21 @@ def startorder(order_id):
         return redirect(url_for('login'))
 
 
+@app.route('/cancelorder/<string:order_id>')
+def cancelorder(order_id):
+    if 'logged_in' in session:
+        cancel_order(order_id)
+        return redirect(url_for('orders'))
+    else:
+        return redirect(url_for('login'))
+
+
 @app.route('/finishorder/<string:order_id>')
 def finishorder(order_id):
-    pass
+    if 'logged_in' in session:
+        driver_id = session['driver_id']
+    else:
+        return redirect(url_for('login'))
 
 
 @app.route('/history')
