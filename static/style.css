@@ -163,7 +163,11 @@ Content
     margin: 41px auto;
 }
 
-
+.pending-graborder-order strong{
+    color: white;
+    font-size : 22px;
+    margin-bottom: 10px;
+}
 .pending-graborder-order div{
     color: white;
 }
