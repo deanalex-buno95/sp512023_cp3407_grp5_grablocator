@@ -7,6 +7,8 @@ app.py
 from flask import Flask, redirect, render_template, session, url_for
 import sqlite3
 
+import datetime
+
 from forms import RegisterForm, LoginForm
 
 app = Flask(__name__)
@@ -392,6 +394,7 @@ def get_driver_history_list(driver_id):
                                 WHERE DRIVERDEST.driverdest_dest_address_id = DESTINATION.dest_address_id
                                 AND DESTINATION.dest_address_id = ADDRESS.address_id
                                 AND DRIVER.driver_id = ?
+                                ORDER BY driverdest_id DESC
                                 """
     driver_history_list_data = (driver_id,)
     cursor.execute(driver_history_list_query, driver_history_list_data)
@@ -441,6 +444,45 @@ def cancel_order(order_id):
                          """
     cancel_order_data = (order_id,)
     cursor.execute(cancel_order_query, cancel_order_data)
+    connection.commit()
+    connection.close()
+
+
+def delete_order(delete_order_query, delete_order_data):
+    """
+    Delete any completed orders from the DB.
+    :param delete_order_query: str
+    :param delete_order_data: tuple
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    cursor.execute(delete_order_query, delete_order_data)
+    connection.commit()
+    connection.close()
+
+
+def modify_order(modify_order_query, modify_order_data):
+    """
+    Modify orders by changing the pickup destination.
+    :param modify_order_query: str
+    :param modify_order_data: tuple
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    cursor.execute(modify_order_query, modify_order_data)
+    connection.commit()
+    connection.close()
+
+
+def add_history(add_history_query, add_history_data):
+    """
+    Add history into the history table.
+    :param add_history_query: str
+    :param add_history_data: tuple
+    """
+    connection = sqlite3.connect("grab_locator.db")
+    cursor = connection.cursor()
+    cursor.execute(add_history_query, add_history_data)
     connection.commit()
     connection.close()
 
@@ -674,7 +716,32 @@ def cancelorder(order_id):
 @app.route('/finishorder/<string:order_id>/<string:pickup_destination_id>/<string:final_destination_id>/<string:stopping_point_id>')
 def finishorder(order_id, pickup_destination_id, final_destination_id, stopping_point_id):
     if 'logged_in' in session:
-        print(order_id, pickup_destination_id, final_destination_id, stopping_point_id)
+        driver_id = session['driver_id']
+        if stopping_point_id == final_destination_id:  # If the driver reaches the final destination.
+            delete_order_query = """
+                                 DELETE FROM GRABORDER
+                                 WHERE graborder_id = ?
+                                 """
+            delete_order_data = (order_id,)
+            delete_order(delete_order_query, delete_order_data)
+        else:  # If the driver reaches an interim point.
+            modify_order_query = """
+                                 UPDATE GRABORDER
+                                 SET graborder_pickupdest_id = ?
+                                 WHERE graborder_id = ?
+                                 """
+            modify_order_data = (stopping_point_id, order_id)
+            modify_order(modify_order_query, modify_order_data)
+            cancel_order(order_id)  # This would put the order back to the available section.
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        add_history_query = """
+                            INSERT INTO DRIVERDEST (driverdest_driver_id, driverdest_dest_address_id, driverdest_date)
+                            VALUES (?, ?, ?)
+                            """
+        add_history_pickupdest_data = (driver_id, pickup_destination_id, current_date)
+        add_history_stoppingpoint_data = (driver_id, stopping_point_id, current_date)
+        add_history(add_history_query, add_history_pickupdest_data)
+        add_history(add_history_query, add_history_stoppingpoint_data)
         return redirect(url_for('orders'))
     else:
         return redirect(url_for('login'))
