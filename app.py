@@ -638,15 +638,15 @@ def selectedorder(order_id):
                     stopping_point_id = final_destination_id
                 else:  # Is not a station.
                     stopping_point_id = get_nearest_station_code_from_postal_sector(final_destination_id[:2])
-        print(stopping_point_id)
 
         # Get the address of the new stopping point.
         stopping_point_address = get_stopping_point_address(stopping_point_id)
 
-        return render_template("selectedorder.html", order_id=order_id,
+        return render_template("selectedorder.html", order_id=order_id, pickup_destination_id=pickup_destination_id,
                                pickup_destination_address_string=pickup_destination_address_string,
+                               final_destination_id=final_destination_id,
                                final_destination_address_string=final_destination_address_string,
-                               is_pending=is_pending,
+                               is_pending=is_pending, stopping_point_id=stopping_point_id,
                                stopping_point_address=stopping_point_address)
     else:
         return redirect(url_for('login'))
@@ -671,10 +671,11 @@ def cancelorder(order_id):
         return redirect(url_for('login'))
 
 
-@app.route('/finishorder/<string:order_id>')
-def finishorder(order_id):
+@app.route('/finishorder/<string:order_id>/<string:pickup_destination_id>/<string:final_destination_id>/<string:stopping_point_id>')
+def finishorder(order_id, pickup_destination_id, final_destination_id, stopping_point_id):
     if 'logged_in' in session:
-        driver_id = session['driver_id']
+        print(order_id, pickup_destination_id, final_destination_id, stopping_point_id)
+        return redirect(url_for('orders'))
     else:
         return redirect(url_for('login'))
 
