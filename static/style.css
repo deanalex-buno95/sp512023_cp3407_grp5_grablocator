@@ -282,8 +282,11 @@ Content
 .history-table th {
   background-color: #f2f2f2;
   font-weight: bold;
+    color: black;
 }
 
+
 .history-table tr:hover {
-  background-color: #e6e6e6;
+  background-color: #0A9830;
+    color: white;
 }
