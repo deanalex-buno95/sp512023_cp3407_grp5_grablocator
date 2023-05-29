@@ -236,9 +236,14 @@ Content
   border: none;
   border-radius: 4px;
   color: #13161d;
-  background-color: #DA291C;
+  background-color: #0f9d58;
   cursor: pointer;
   transition: background-color 0.3s ease;
+}
+
+.finish-button:hover{
+    background-color: #0A9830;
+    color: white;
 }
 
 .cancel-button{
@@ -251,7 +256,12 @@ Content
   border: none;
   border-radius: 4px;
   color: #13161d;
-  background-color: #DA291C;
+  background-color: #FF0000;
   cursor: pointer;
   transition: background-color 0.3s ease;
+}
+
+.cancel-button:hover{
+    background-color: #DA291C;
+    color: white;
 }
