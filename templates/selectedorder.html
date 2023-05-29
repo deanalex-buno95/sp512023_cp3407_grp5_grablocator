@@ -13,27 +13,27 @@
             Order Details
         </h2>
         <div class="col">
-            <h3>
+            <h3 class="from_to">
                 From
             </h3>
-            <p>
+            <p class="from_to">
                 {{ pickup_destination_address_string }}
             </p>
         </div>
         <div class="col">
-            <h3>
+            <h3 class="from_to">
                 To
             </h3>
-            <p>
+            <p class="from_to">
                 {{ final_destination_address_string }}
             </p>
         </div>
     </div>
     <div class="row">
-        <h2>
+        <h2 class="from_to">
             Stopping Point
         </h2>
-        <p>
+        <p class="from_to">
             Address to go to: {{ stopping_point_address }}
         </p>
         {% if is_pending %}
