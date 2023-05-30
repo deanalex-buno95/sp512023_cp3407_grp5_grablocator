@@ -94,4 +94,16 @@ We will add a separate JavaScript file to tidy up the JS code for the next SPRIN
 As for whether the `selectedorder` page will have the map APIs, that remains to be determined provided the limited time.
 
 ### Sprint 3 (Week 10 to Study Week 2)
+Sprint 3 involves completing the main functionality and uploading the website to PythonAnywhere from GitHub.
 
+From the `selectedorder` page, we added another prompt called "Cancel".
+This would remove the driver ID from a pending job, making it available again.
+
+Then, we did some testing with all the necessary features, from the History page, and both orders page.
+Considering that we ran out of time, we decide to leave out the map, but the core functionality outside the map is still here.
+
+Lastly, we have uploaded the final result of the website locally into PythonAnywhere.
+
+With the help of the video, we are able to clone this repository into the PythonAnywhere domain:
+- Help Video: <a href="https://youtu.be/4sTZN15J33A">https://youtu.be/4sTZN15J33A</a>
+- Web Site Domain: <a href="http://shadowmamba95.pythonanywhere.com/">http://shadowmamba95.pythonanywhere.com/</a>
